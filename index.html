@@ -23,7 +23,7 @@
     @media (prefers-color-scheme: light){ .card{background:var(--cardL); border:1px solid rgba(15,23,42,.08);} }
     .muted{color:var(--muted)}
 
-    /* 표 영역: 안정적인 grid 레이아웃 */
+    /* 표 영역 */
     .grid-head, .grid-row{display:grid; grid-template-columns:140px 1fr 130px; align-items:center}
     .grid-head{padding:12px 14px; border-bottom:1px dashed rgba(148,163,184,.25); font-weight:700}
     .grid-row{padding:10px 14px; border-bottom:1px dashed rgba(148,163,184,.18)}
@@ -62,7 +62,7 @@
       <div class="muted">공식: <strong>(29a+70b+142c+284d+714e+1429f + extra) × 4 + 1000 → 원(ARS)</strong></div>
     </header>
 
-    <!-- 팩 표 (핵심 UI 유지) -->
+    <!-- 팩 표 -->
     <section class="card" aria-labelledby="packsTitle">
       <h2 id="packsTitle" class="sr-only">팩 개수 입력</h2>
       <div class="grid-head">
@@ -71,7 +71,7 @@
       <div id="rows"></div>
     </section>
 
-    <!-- 사용자 지정 가격 + 프리셋 셀렉트 -->
+    <!-- 사용자 지정 가격 + 프리셋 -->
     <section class="card" style="margin-top:14px" aria-labelledby="extraTitle">
       <h2 id="extraTitle" class="sr-only">추가 가격 / 프리셋</h2>
       <div style="display:flex; gap:12px; align-items:end; padding:14px; flex-wrap:wrap">
@@ -194,7 +194,7 @@
       });
     }
 
-    // 프리셋 셀렉트 렌더링 — 표시에서는 수량 배열 제거, hover title로만 제공
+    // 프리셋 셀렉트 렌더링 — 화면에는 이름만
     function renderPresetSelect(){
       presetPanel.innerHTML = '';
       PRESETS.forEach((p,idx)=>{
@@ -203,7 +203,7 @@
         opt.role = 'option';
         opt.dataset.idx = idx;
         opt.textContent = p.name;      // 수량 배열은 표시하지 않음
-        opt.title = p.hint;            // 필요하면 마우스오버로만 확인 가능
+        opt.title = p.hint;            // 필요하면 마우스오버로만 확인
         opt.addEventListener('click', ()=>{ applyPreset(idx); closePreset(); });
         presetPanel.appendChild(opt);
       });
@@ -271,8 +271,7 @@
       if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
       lines.push(`소계: ${Math.round(subtotal)} ARS`);
       lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
-      const text = lines.join('
-');
+      const text = lines.join('\n'); // ← 핵심 수정
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
     }
     function resetAll(){
@@ -286,7 +285,6 @@
       history.replaceState({}, '', location.pathname);
       // 표시 갱신
       update();
-      
     }
 
     // 복원
@@ -314,19 +312,18 @@
     renderPresetSelect();
     restoreFromHash();
     update();
-    
+
     // === 간단 테스트 (콘솔) ===
     (function runTests(){
       try{
-        console.assert(['a','b'].join('\n')==='a\nb','join(\"\\\\n\") 실패');
+        console.assert(['a','b'].join('\n')==='a\nb','join("\\n") 실패');
         console.assert(document.querySelectorAll('input.num').length===6,'팩 입력칸 6개 생성 실패');
         console.assert(document.querySelectorAll('#presetPanel .option').length===16,'프리셋 16개 생성 실패');
         console.log('[OK] 기본 테스트 통과');
       }catch(e){ console.error('[TEST FAIL]', e); }
     })();
-    
-    document.getElementById('year').textContent = new Date().getFullYear();
 
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
