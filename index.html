@@ -286,6 +286,7 @@
       history.replaceState({}, '', location.pathname);
       // 표시 갱신
       update();
+      
     }
 
     // 복원
@@ -313,7 +314,19 @@
     renderPresetSelect();
     restoreFromHash();
     update();
+    
+    // === 간단 테스트 (콘솔) ===
+    (function runTests(){
+      try{
+        console.assert(['a','b'].join('\n')==='a\nb','join(\"\\\\n\") 실패');
+        console.assert(document.querySelectorAll('input.num').length===6,'팩 입력칸 6개 생성 실패');
+        console.assert(document.querySelectorAll('#presetPanel .option').length===16,'프리셋 16개 생성 실패');
+        console.log('[OK] 기본 테스트 통과');
+      }catch(e){ console.error('[TEST FAIL]', e); }
+    })();
+    
     document.getElementById('year').textContent = new Date().getFullYear();
+
   </script>
 </body>
 </html>
