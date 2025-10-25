@@ -23,15 +23,16 @@
     @media (prefers-color-scheme: light){ .card{background:var(--cardL); border:1px solid rgba(15,23,42,.08);} }
     .muted{color:var(--muted)}
 
-    /* 표 영역: display:contents 호환성 이슈 회피 */
+    /* 표 영역: 안정적인 grid 레이아웃 */
     .grid-head, .grid-row{display:grid; grid-template-columns:140px 1fr 130px; align-items:center}
     .grid-head{padding:12px 14px; border-bottom:1px dashed rgba(148,163,184,.25); font-weight:700}
     .grid-row{padding:10px 14px; border-bottom:1px dashed rgba(148,163,184,.18)}
     .grid-row:last-child{border-bottom:none}
 
-    .controls{display:inline-grid; grid-template-columns:auto 72px auto; gap:8px; align-items:center}
+    .controls{display:inline-grid; grid-template-columns:auto 72px auto; gap:10px; align-items:center}
     .btn{padding:8px 10px; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit; cursor:pointer}
     .btn:focus{outline:3px solid var(--ring); outline-offset:2px}
+    .btn.plus{margin-left:6px} /* + 버튼을 약간 오른쪽으로 */
     .num{width:72px; padding:8px 10px; text-align:center; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit}
 
     /* 합계 */
@@ -61,7 +62,7 @@
       <div class="muted">공식: <strong>(29a+70b+142c+284d+714e+1429f + extra) × 4 + 1000 → 원(ARS)</strong></div>
     </header>
 
-    <!-- 팩 표 (핵심 UI: 유지/강조) -->
+    <!-- 팩 표 (핵심 UI 유지) -->
     <section class="card" aria-labelledby="packsTitle">
       <h2 id="packsTitle" class="sr-only">팩 개수 입력</h2>
       <div class="grid-head">
@@ -116,24 +117,24 @@
     // ===== 설정 =====
     const PACKS = [29,70,142,284,714,1429];
 
-    // 프리셋 목록 (16개)
+    // 프리셋 목록 (16개) — 표시 텍스트에서 수량 배열은 숨김
     const PRESETS = [
-      {name:'Infiniti Project Black S 쇼룸', qty:[1,2,6,0,0,0]},
-      {name:'NIO EP9 쇼룸', qty:[5,1,13,8,0,0]},
-      {name:'BMW i8 쇼룸', qty:[1,7,6,5,0,0]},
-      {name:'Renault Sport R.S.01 쇼룸', qty:[1,1,2,7,0,0]},
-      {name:'Lotus Emira 쇼룸', qty:[1,4,7,8,0,0]},
-      {name:'Lamborghini Miura', qty:[1,0,2,5,3,0]},
-      {name:'Honda Civic Type-R', qty:[1,2,4,7,0,0]},
-      {name:'Renault Dezir', qty:[3,8,6,0,0,0]},
-      {name:'Renault TreZor', qty:[1,4,7,5,0,0]},
-      {name:'Ferrari Monza SP1', qty:[1,3,5,8,0,0]},
-      {name:'Volkswagen W12', qty:[1,0,0,5,2,3]},
-      {name:'Lamborghini Sian FKP 37', qty:[1,0,0,10,7,11]},
-      {name:'Boxwell MK X 500', qty:[1,5,5,6,0,0]},
-      {name:'Aston Martin V12 Speedstar', qty:[2,3,6,5,0,0]},
-      {name:'Saleen S1', qty:[3,4,6,10,0,0]},
-      {name:'Vanda Dendrobium', qty:[7,2,19,13,0,0]},
+      {name:'Infiniti Project Black S 쇼룸', qty:[1,2,6,0,0,0], hint:'[1,2,6,0,0,0]'},
+      {name:'NIO EP9 쇼룸', qty:[5,1,13,8,0,0], hint:'[5,1,13,8,0,0]'},
+      {name:'BMW i8 쇼룸', qty:[1,7,6,5,0,0], hint:'[1,7,6,5,0,0]'},
+      {name:'Renault Sport R.S.01 쇼룸', qty:[1,1,2,7,0,0], hint:'[1,1,2,7,0,0]'},
+      {name:'Lotus Emira 쇼룸', qty:[1,4,7,8,0,0], hint:'[1,4,7,8,0,0]'},
+      {name:'Lamborghini Miura', qty:[1,0,2,5,3,0], hint:'[1,0,2,5,3,0]'},
+      {name:'Honda Civic Type-R', qty:[1,2,4,7,0,0], hint:'[1,2,4,7,0,0]'},
+      {name:'Renault Dezir', qty:[3,8,6,0,0,0], hint:'[3,8,6,0,0,0]'},
+      {name:'Renault TreZor', qty:[1,4,7,5,0,0], hint:'[1,4,7,5,0,0]'},
+      {name:'Ferrari Monza SP1', qty:[1,3,5,8,0,0], hint:'[1,3,5,8,0,0]'},
+      {name:'Volkswagen W12', qty:[1,0,0,5,2,3], hint:'[1,0,0,5,2,3]'},
+      {name:'Lamborghini Sian FKP 37', qty:[1,0,0,10,7,11], hint:'[1,0,0,10,7,11]'},
+      {name:'Boxwell MK X 500', qty:[1,5,5,6,0,0], hint:'[1,5,5,6,0,0]'},
+      {name:'Aston Martin V12 Speedstar', qty:[2,3,6,5,0,0], hint:'[2,3,6,5,0,0]'},
+      {name:'Saleen S1', qty:[3,4,6,10,0,0], hint:'[3,4,6,10,0,0]'},
+      {name:'Vanda Dendrobium', qty:[7,2,19,13,0,0], hint:'[7,2,19,13,0,0]'},
     ];
 
     // 상태
@@ -166,7 +167,7 @@
             <div class="controls">
               <button class="btn" data-i="${i}" data-delta="-1" aria-label="${p} ARS 감소">−</button>
               <input class="num" id="n${i}" type="number" step="1" min="0" value="0" aria-label="${p} ARS 개수" />
-              <button class="btn" data-i="${i}" data-delta="1" aria-label="${p} ARS 증가">＋</button>
+              <button class="btn plus" data-i="${i}" data-delta="1" aria-label="${p} ARS 증가">＋</button>
             </div>
           </div>
           <div style="text-align:right"><span id="s${i}">0</span> ARS</div>`;
@@ -193,7 +194,7 @@
       });
     }
 
-    // 프리셋 셀렉트 렌더링 (드롭다운 열고/닫기 & 옵션 표시)
+    // 프리셋 셀렉트 렌더링 — 표시에서는 수량 배열 제거, hover title로만 제공
     function renderPresetSelect(){
       presetPanel.innerHTML = '';
       PRESETS.forEach((p,idx)=>{
@@ -201,7 +202,8 @@
         opt.className = 'option';
         opt.role = 'option';
         opt.dataset.idx = idx;
-        opt.textContent = `${p.name} — [${p.qty.join(', ')}]`;
+        opt.textContent = p.name;      // 수량 배열은 표시하지 않음
+        opt.title = p.hint;            // 필요하면 마우스오버로만 확인 가능
         opt.addEventListener('click', ()=>{ applyPreset(idx); closePreset(); });
         presetPanel.appendChild(opt);
       });
@@ -272,7 +274,18 @@
       const text = lines.join('\n');
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
     }
-    function resetAll(){ state.qty = state.qty.map(()=>0); state.extra = 0; extraEl.value = 0; presetLabel.textContent = '프리셋 선택'; update(); }
+    function resetAll(){
+      // 상태 초기화
+      state.qty = state.qty.map(()=>0); state.extra = 0;
+      // 입력값/라벨/패널 시각적으로도 초기화
+      PACKS.forEach((_,i)=>{ const el=document.getElementById('n'+i); if(el) el.value=0; });
+      extraEl.value = 0; presetLabel.textContent = '프리셋 선택';
+      closePreset();
+      // URL 해시 제거
+      history.replaceState({}, '', location.pathname);
+      // 표시 갱신
+      update();
+    }
 
     // 복원
     function restoreFromHash(){
