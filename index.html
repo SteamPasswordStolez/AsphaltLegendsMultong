@@ -290,6 +290,14 @@
       if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
       lines.push(`소계: ${Math.round(subtotal)} ARS`);
       lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
+      const text = lines.join('\n');
+      navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
+    } = calc();
+      const lines = [];
+      PACKS.forEach((p,i)=>{ if(state.qty[i]>0) lines.push(`${p} ARS × ${state.qty[i]} = ${state.qty[i]*p} ARS`); });
+      if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
+      lines.push(`소계: ${Math.round(subtotal)} ARS`);
+      lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
       const text = lines.join('
 ');
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
@@ -325,6 +333,15 @@
     renderPresetDropdown();
     restoreFromHash();
     update();
+    // 간단 테스트 (콘솔)
+    (function runTests(){
+      try{
+        console.assert(['x','y'].join('\n')==='x\ny','join("\\n") 실패');
+        console.assert(document.querySelectorAll('input.num').length===6,'팩 입력칸 6개 생성 실패');
+        console.assert(typeof copySummary==='function','copySummary 존재해야 함');
+        console.log('[OK] 간단 테스트 통과');
+      }catch(e){ console.error('[TEST FAIL]', e); }
+    })();
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
