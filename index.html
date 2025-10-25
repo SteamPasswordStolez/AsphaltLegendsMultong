@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>아스팔트 레전드 결제 계산기 — 단축키/프리셋</title>
-  <meta name="description" content="팩 개수와 추가 금액을 입력하면 (합계)*4 + 1000 공식을 적용해 원(ARS)으로 표시합니다. 키보드 단축키와 프리셋 지원." />
+  <title>아스팔트 레전드 결제 계산기 — 프리셋 드롭다운</title>
+  <meta name="description" content="팩 개수와 추가 금액을 입력하면 (합계)*4 + 1000 공식을 적용해 원(ARS)으로 표시합니다. 키보드 단축키와 대형 프리셋 드롭다운 지원." />
   <meta name="theme-color" content="#0ea5e9" />
   <style>
     :root{
@@ -42,10 +42,17 @@
     .totals .grand{margin-top:8px; padding-top:10px; border-top:1px solid rgba(148,163,184,.25); font-size:20px; font-weight:800}
 
     details{padding:14px;}
-    details summary{cursor:pointer; list-style:none}
+    details summary{cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px}
     details summary::-webkit-details-marker{display:none}
-    .preset-list{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:10px; margin-top:10px}
-    .preset{padding:10px 12px; border:1px solid rgba(148,163,184,.35); border-radius:12px; cursor:pointer}
+    .caret{transition:transform .2s ease}
+    details[open] .caret{transform:rotate(90deg)}
+
+    /* 커스텀 드롭다운 */
+    .dropdown{position:relative}
+    .dropdown-panel{margin-top:10px; max-height:320px; overflow:auto; border:1px solid rgba(148,163,184,.35); border-radius:12px}
+    .option{padding:10px 12px; border-bottom:1px dashed rgba(148,163,184,.15); cursor:pointer; user-select:none}
+    .option:last-child{border-bottom:none}
+    .option:hover, .option.active{background:rgba(148,163,184,.15)}
 
     footer{padding:18px 0; color:var(--muted); font-size:14px}
     .kbd{font:600 12px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background:rgba(148,163,184,.18); padding:.35em .55em; border-radius:8px}
@@ -72,7 +79,7 @@
       </div>
     </section>
 
-    <!-- 사용자 지정 가격 입력 -->
+    <!-- 사용자 지정 가격 입력 (메모 제거) -->
     <section class="card panel" style="margin-top:14px" aria-labelledby="extraTitle">
       <h2 id="extraTitle" class="sr-only">추가 가격</h2>
       <div class="field">
@@ -80,21 +87,20 @@
         <input id="extra" class="num" type="number" step="1" min="0" value="0" />
         <div class="muted">빈칸에 아무 숫자 입력 → 합계에 그대로 더해집니다.</div>
       </div>
-      <div class="field">
-        <label for="note">메모 (선택)</label>
-        <input id="note" type="text" placeholder="예: 특정 번들 추가" />
-      </div>
     </section>
 
-    <!-- 프리셋/단축키 -->
+    <!-- 프리셋/단축키: 드롭다운 방식 -->
     <section class="card grid" style="margin-top:14px" aria-labelledby="presetTitle">
       <h2 id="presetTitle" class="sr-only">단축키 및 프리셋</h2>
-      <details>
-        <summary><strong>단축키</strong> — <span class="muted">1–6: 해당 팩 +1, Shift+1–6: -1 · 0: 전체 초기화 · C: 추가금 입력 포커스 · S: 요약 복사</span></summary>
+      <details class="dropdown" id="presetDropdown">
+        <summary>
+          <span class="caret">▶</span>
+          <strong>프리셋 선택</strong> — <span class="muted">클릭하여 펼치기 (드래그 선택 가능)</span>
+        </summary>
+        <div class="dropdown-panel" id="presetPanel"></div>
       </details>
       <details>
-        <summary><strong>프리셋 선택</strong> — 자주 쓰는 조합을 한 번에 적용</summary>
-        <div class="preset-list" id="presetList"></div>
+        <summary><strong>단축키</strong> — <span class="muted">1–6: 해당 팩 +1, Shift+1–6: -1 · 0: 초기화 · C: 추가금 포커스 · S: 요약 복사</span></summary>
       </details>
     </section>
 
@@ -125,13 +131,24 @@
     // ===== 설정 =====
     const PACKS = [29,70,142,284,714,1429];
 
-    // 예시 프리셋 (필요 시 자유롭게 수정 가능)
+    // 프리셋 목록 (요청하신 16개)
     const PRESETS = [
-      {name:'스타터', qty:[1,0,0,0,0,0]},
-      {name:'빠른 300', qty:[1,2,0,0,0,0]},
-      {name:'추천 조합 A', qty:[0,1,1,0,0,0]},
-      {name:'추천 조합 B', qty:[0,0,0,1,1,0]},
-      {name:'하이롤러', qty:[0,0,0,0,0,1]},
+      {name:'Infiniti Project Black S 쇼룸', qty:[1,2,6,0,0,0]},
+      {name:'NIO EP9 쇼룸', qty:[5,1,13,8,0,0]},
+      {name:'BMW i8 쇼룸', qty:[1,7,6,5,0,0]},
+      {name:'Renault Sport R.S.01 쇼룸', qty:[1,1,2,7,0,0]},
+      {name:'Lotus Emira 쇼룸', qty:[1,4,7,8,0,0]},
+      {name:'Lamborghini Miura', qty:[1,0,2,5,3,0]},
+      {name:'Honda Civic Type-R', qty:[1,2,4,7,0,0]},
+      {name:'Renault Dezir', qty:[3,8,6,0,0,0]},
+      {name:'Renault TreZor', qty:[1,4,7,5,0,0]},
+      {name:'Ferrari Monza SP1', qty:[1,3,5,8,0,0]},
+      {name:'Volkswagen W12', qty:[1,0,0,5,2,3]},
+      {name:'Lamborghini Sian FKP 37', qty:[1,0,0,10,7,11]},
+      {name:'Boxwell MK X 500', qty:[1,5,5,6,0,0]},
+      {name:'Aston Martin V12 Speedstar', qty:[2,3,6,5,0,0]},
+      {name:'Saleen S1', qty:[3,4,6,10,0,0]},
+      {name:'Vanda Dendrobium', qty:[7,2,19,13,0,0]},
     ];
 
     // 상태
@@ -147,10 +164,10 @@
     const extraArsEl = document.getElementById('extraArs');
     const subtotalEl = document.getElementById('subtotal');
     const resultEl = document.getElementById('result');
+    const presetPanel = document.getElementById('presetPanel');
 
     // 행 렌더링
     function renderRows(){
-      // 헤더 다음으로 행 삽입
       PACKS.forEach((p,i)=>{
         const row = document.createElement('div');
         row.className = 'row';
@@ -213,27 +230,36 @@
       history.replaceState({}, '', location.pathname + (params.toString()?('#'+params.toString()):''));
     }
 
-    // 프리셋 렌더링
-    function renderPresets(){
-      const list = document.getElementById('presetList');
-      PRESETS.forEach(p=>{
-        const b = document.createElement('button');
-        b.className = 'preset';
-        b.textContent = `${p.name} — [${p.qty.join(', ')}]`;
-        b.addEventListener('click', ()=>{
-          for(let i=0;i<PACKS.length;i++){
-            state.qty[i] = Math.max(0, +p.qty[i]||0);
-            document.getElementById('n'+i).value = state.qty[i];
-          }
-          update();
-        });
-        list.appendChild(b);
+    // 프리셋 드롭다운 렌더링
+    function renderPresetDropdown(){
+      let dragging = false;
+      PRESETS.forEach((p,idx)=>{
+        const opt = document.createElement('div');
+        opt.className = 'option';
+        opt.textContent = p.name + ' — [' + p.qty.join(', ') + ']';
+        opt.dataset.idx = idx;
+        // 클릭 선택
+        opt.addEventListener('click', ()=>applyPreset(idx));
+        // 드래그 선택
+        opt.addEventListener('mousedown', (e)=>{ dragging = true; opt.classList.add('active'); applyPreset(idx); e.preventDefault(); });
+        opt.addEventListener('mouseenter', ()=>{ if(dragging){ opt.classList.add('active'); applyPreset(idx); }});
+        opt.addEventListener('mouseleave', ()=> opt.classList.remove('active'));
+        presetPanel.appendChild(opt);
       });
+      window.addEventListener('mouseup', ()=>{ dragging=false; document.querySelectorAll('.option.active').forEach(el=>el.classList.remove('active')); });
+    }
+
+    function applyPreset(i){
+      const arr = PRESETS[i].qty;
+      for(let k=0;k<PACKS.length;k++){
+        state.qty[k] = Math.max(0, +arr[k]||0);
+        const el = document.getElementById('n'+k); if(el) el.value = state.qty[k];
+      }
+      update();
     }
 
     // 단축키
     function handleHotkeys(e){
-      // 1~6: 해당 팩 +1, Shift와 함께면 -1
       if(e.key>='1' && e.key<='6'){
         const idx = +e.key - 1;
         const d = e.shiftKey? -1 : 1;
@@ -264,7 +290,8 @@
       if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
       lines.push(`소계: ${Math.round(subtotal)} ARS`);
       lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
-      const text = lines.join('\n');
+      const text = lines.join('
+');
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
     }
 
@@ -295,7 +322,7 @@
 
     // 초기화
     renderRows();
-    renderPresets();
+    renderPresetDropdown();
     restoreFromHash();
     update();
     document.getElementById('year').textContent = new Date().getFullYear();
