@@ -15,7 +15,7 @@
       --zDropdown:9999;
     }
     html{color-scheme:light dark}
-    body{margin:0; font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Apple SD Gothic Neo, Arial, sans-serif; background:var(--bg); color:var(--text);}
+    body{margin:0; font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Apple SD Gothic Neo, Arial, sans-serif; background:var(--bg); color:var(--text);}    
     @media (prefers-color-scheme: light){ body{background:var(--bgL); color:var(--textL);} }
     .container{max-width:980px; margin:0 auto; padding:24px}
     header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0}
@@ -246,7 +246,7 @@
     }
 
     function update(){
-      state.qty.forEach((q,i)=>{ const sv=document.getElementById('s'+i'); if(sv) sv.textContent = fmt(q*PACKS[i]); });
+      state.qty.forEach((q,i)=>{ const sv = document.getElementById('s'+i); if(sv) sv.textContent = fmt(q*PACKS[i]); });
       const {sumArs, subtotal, resultWon} = calc();
       sumArsEl.textContent = fmt(sumArs) + ' ARS';
       extraArsEl.textContent = fmt(state.extra||0) + ' ARS';
@@ -273,7 +273,7 @@
       if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
       lines.push(`소계: ${Math.round(subtotal)} ARS`);
       lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
-      const text = lines.join('\n');
+      const text = lines.join('\n'); // FIX: 줄바꿈 문자열 올바르게 사용
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
     }
     function resetAll(){
@@ -303,6 +303,28 @@
       }
     }
 
+    // ===== 간단 테스트 (콘솔) =====
+    function runTests(){
+      const snap = { qty:[...state.qty], extra: state.extra };
+
+      // 1) join("\n")가 정상 동작하는지
+      console.assert(['a','b'].join('\n') === 'a\nb', 'join("\\n") failed');
+
+      // 2) 계산식 테스트: [1,2,0,0,0,0], extra=0 → (29 + 140) = 169 → 169*4 + 1000 = 1676
+      state.qty = [1,2,0,0,0,0]; state.extra = 0; let r = calc();
+      console.assert(r.subtotal === 169, 'subtotal should be 169, got '+r.subtotal);
+      console.assert(r.resultWon === 1676, 'result should be 1676, got '+r.resultWon);
+
+      // 3) 프리셋 테스트: 0번 프리셋
+      const p0 = PRESETS[0].qty; state.qty = [...p0]; state.extra = 0; r = calc();
+      // 29*1 + 70*2 + 142*6 = 29 + 140 + 852 = 1021 → 1021*4 + 1000 = 5084
+      console.assert(r.subtotal === 1021, 'preset subtotal should be 1021, got '+r.subtotal);
+      console.assert(r.resultWon === 5084, 'preset result should be 5084, got '+r.resultWon);
+
+      // 원상복구
+      state.qty = [...snap.qty]; state.extra = snap.extra;
+    }
+
     // 이벤트 바인딩
     document.getElementById('resetBtn').addEventListener('click', resetAll);
     document.getElementById('shareBtn').addEventListener('click', copyShare);
@@ -313,6 +335,7 @@
     renderRows();
     renderPresetSelect();
     restoreFromHash();
+    runTests(); // 테스트 실행 (UI에는 영향 없도록 state 복원 처리)
     update();
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
