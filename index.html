@@ -4,13 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>아스팔트 레전드 결제 계산기 — 프리셋 셀렉트</title>
-  <meta name="description" content="팩 개수와 추가 금액을 입력하면 (합계)*4 + 1000 공식을 적용해 원(ARS)으로 표시합니다. 가벼운 프리셋 셀렉트 드롭다운 지원." />
+  <meta name="description" content="팩 개수와 추가 금액을 입력하면 (합계)*4 + 1000 공식을 적용해 원(ARS)으로 표시합니다. 프리셋 드롭다운 지원." />
   <meta name="theme-color" content="#0ea5e9" />
   <style>
     :root{
       --bg:#0b1020; --card:#0f172a; --text:#e5e7eb; --muted:#94a3b8; --brand:#0ea5e9; --ring:rgba(14,165,233,.35);
       --bgL:#ffffff; --textL:#0f172a; --mutedL:#475569; --cardL:#f8fafc;
       --radius:16px; --shadow:0 12px 30px rgba(2,6,23,.25);
+      --border:1px solid rgba(148,163,184,.18);
     }
     html{color-scheme:light dark}
     body{margin:0; font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans KR, Apple SD Gothic Neo, Arial, sans-serif; background:var(--bg); color:var(--text);}
@@ -18,19 +19,20 @@
     .container{max-width:980px; margin:0 auto; padding:24px}
     header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0}
     h1{font-size:clamp(22px,4vw,34px); margin:0}
-    .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid rgba(148,163,184,.18)}
-    @media (prefers-color-scheme: light){ .card{background:var(--cardL); border-color:rgba(15,23,42,.08);} }
+    .card{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); border:var(--border)}
+    @media (prefers-color-scheme: light){ .card{background:var(--cardL); border:1px solid rgba(15,23,42,.08);} }
     .muted{color:var(--muted)}
 
-    /* 표 영역 */
-    .table{display:grid; grid-template-columns:140px 1fr 130px; gap:0;}
-    .thead,.row{display:contents}
-    .th,.td{padding:12px 14px; border-bottom:1px dashed rgba(148,163,184,.25)}
-    .th{font-weight:700}
-    .controls{display:inline-grid; grid-template-columns:auto 64px auto; gap:8px; align-items:center}
+    /* 표 영역: display:contents 호환성 이슈 회피 */
+    .grid-head, .grid-row{display:grid; grid-template-columns:140px 1fr 130px; align-items:center}
+    .grid-head{padding:12px 14px; border-bottom:1px dashed rgba(148,163,184,.25); font-weight:700}
+    .grid-row{padding:10px 14px; border-bottom:1px dashed rgba(148,163,184,.18)}
+    .grid-row:last-child{border-bottom:none}
+
+    .controls{display:inline-grid; grid-template-columns:auto 72px auto; gap:8px; align-items:center}
     .btn{padding:8px 10px; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit; cursor:pointer}
     .btn:focus{outline:3px solid var(--ring); outline-offset:2px}
-    .num{width:64px; padding:8px 10px; text-align:center; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit}
+    .num{width:72px; padding:8px 10px; text-align:center; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit}
 
     /* 합계 */
     .totals{padding:16px}
@@ -39,9 +41,9 @@
 
     /* 프리셋 셀렉트 */
     .select{position:relative; display:inline-block}
-    .select-toggle{display:flex; align-items:center; gap:6px; padding:8px 10px; min-width:260px; border-radius:12px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit; cursor:pointer}
+    .select-toggle{display:flex; align-items:center; justify-content:space-between; gap:6px; padding:8px 10px; min-width:280px; border-radius:12px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit; cursor:pointer}
     .select-arrow{font-weight:900; font-size:14px}
-    .select-panel{position:absolute; inset:auto 0 auto 0; top:calc(100% + 8px); z-index:10; display:none; max-height:360px; overflow:auto; border:1px solid rgba(148,163,184,.35); border-radius:12px; background:var(--card); box-shadow:var(--shadow)}
+    .select-panel{position:absolute; left:0; right:0; top:calc(100% + 8px); z-index:999; display:none; max-height:360px; overflow:auto; border:1px solid rgba(148,163,184,.35); border-radius:12px; background:var(--card); box-shadow:var(--shadow)}
     @media (prefers-color-scheme: light){ .select-panel{background:var(--cardL);} }
     .select.open .select-panel{display:block}
     .option{padding:10px 12px; border-bottom:1px dashed rgba(148,163,184,.12); cursor:pointer; user-select:none}
@@ -59,23 +61,19 @@
       <div class="muted">공식: <strong>(29a+70b+142c+284d+714e+1429f + extra) × 4 + 1000 → 원(ARS)</strong></div>
     </header>
 
-    <!-- 팩 표 -->
+    <!-- 팩 표 (핵심 UI: 유지/강조) -->
     <section class="card" aria-labelledby="packsTitle">
       <h2 id="packsTitle" class="sr-only">팩 개수 입력</h2>
-      <div class="table" id="table">
-        <div class="thead">
-          <div class="th">팩(ARS)</div>
-          <div class="th">개수</div>
-          <div class="th" style="text-align:right">소계(ARS)</div>
-        </div>
-        <!-- 행들이 스크립트로 삽입됨 -->
+      <div class="grid-head">
+        <div>팩(ARS)</div><div>개수</div><div style="text-align:right">소계(ARS)</div>
       </div>
+      <div id="rows"></div>
     </section>
 
-    <!-- 사용자 지정 가격 입력 -->
+    <!-- 사용자 지정 가격 + 프리셋 셀렉트 -->
     <section class="card" style="margin-top:14px" aria-labelledby="extraTitle">
-      <h2 id="extraTitle" class="sr-only">추가 가격</h2>
-      <div style="display:flex; gap:12px; align-items:end; padding:14px">
+      <h2 id="extraTitle" class="sr-only">추가 가격 / 프리셋</h2>
+      <div style="display:flex; gap:12px; align-items:end; padding:14px; flex-wrap:wrap">
         <div>
           <label for="extra">사용자 지정 추가 금액 (ARS)</label><br/>
           <input id="extra" class="num" type="number" step="1" min="0" value="0" />
@@ -83,7 +81,6 @@
         </div>
         <div>
           <label class="sr-only" for="presetToggle">프리셋 선택</label><br/>
-          <!-- 작은 네모창 + V 화살표 -->
           <div class="select" id="presetSelect">
             <button id="presetToggle" class="select-toggle" type="button" aria-expanded="false" aria-controls="presetPanel">
               <span id="presetLabel">프리셋 선택</span>
@@ -146,7 +143,7 @@
     const fmt = n => new Intl.NumberFormat('ko-KR').format(Math.round(n));
 
     // DOM 참조
-    const table = document.getElementById('table');
+    const rows = document.getElementById('rows');
     const sumArsEl = document.getElementById('sumArs');
     const extraEl = document.getElementById('extra');
     const extraArsEl = document.getElementById('extraArs');
@@ -158,26 +155,26 @@
     const presetPanel = document.getElementById('presetPanel');
     const presetLabel = document.getElementById('presetLabel');
 
-    // 행 렌더링
+    // 행 렌더링 (핵심 UI)
     function renderRows(){
       PACKS.forEach((p,i)=>{
         const row = document.createElement('div');
-        row.className = 'row';
+        row.className = 'grid-row';
         row.innerHTML = `
-          <div class="td"><strong>${p} ARS</strong></div>
-          <div class="td">
+          <div><strong>${p} ARS</strong></div>
+          <div>
             <div class="controls">
               <button class="btn" data-i="${i}" data-delta="-1" aria-label="${p} ARS 감소">−</button>
               <input class="num" id="n${i}" type="number" step="1" min="0" value="0" aria-label="${p} ARS 개수" />
               <button class="btn" data-i="${i}" data-delta="1" aria-label="${p} ARS 증가">＋</button>
             </div>
           </div>
-          <div class="td" style="text-align:right"><span id="s${i}">0</span> ARS</div>`;
-        table.appendChild(row);
+          <div style="text-align:right"><span id="s${i}">0</span> ARS</div>`;
+        rows.appendChild(row);
       });
 
-      // 버튼 +/-
-      table.addEventListener('click', (e)=>{
+      // 버튼 +/- (이벤트 위임)
+      rows.addEventListener('click', (e)=>{
         const btn = e.target.closest('button[data-i]');
         if(!btn) return;
         const i = +btn.dataset.i; const d = +btn.dataset.delta;
@@ -196,7 +193,7 @@
       });
     }
 
-    // 프리셋 셀렉트 렌더링
+    // 프리셋 셀렉트 렌더링 (드롭다운 열고/닫기 & 옵션 표시)
     function renderPresetSelect(){
       presetPanel.innerHTML = '';
       PRESETS.forEach((p,idx)=>{
