@@ -271,7 +271,8 @@
       if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
       lines.push(`소계: ${Math.round(subtotal)} ARS`);
       lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
-      const text = lines.join('\n');
+      const text = lines.join('
+');
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
     }
     function resetAll(){
