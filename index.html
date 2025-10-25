@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>아스팔트 레전드 결제 계산기 — 프리셋 드롭다운</title>
-  <meta name="description" content="팩 개수와 추가 금액을 입력하면 (합계)*4 + 1000 공식을 적용해 원(ARS)으로 표시합니다. 키보드 단축키와 대형 프리셋 드롭다운 지원." />
+  <title>아스팔트 레전드 결제 계산기 — 프리셋 셀렉트</title>
+  <meta name="description" content="팩 개수와 추가 금액을 입력하면 (합계)*4 + 1000 공식을 적용해 원(ARS)으로 표시합니다. 가벼운 프리셋 셀렉트 드롭다운 지원." />
   <meta name="theme-color" content="#0ea5e9" />
   <style>
     :root{
@@ -32,30 +32,23 @@
     .btn:focus{outline:3px solid var(--ring); outline-offset:2px}
     .num{width:64px; padding:8px 10px; text-align:center; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit}
 
-    /* 옵션/프리셋/합계 */
-    .grid{display:grid; gap:14px}
-    .panel{display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:14px}
-    .field{display:grid; gap:6px}
-    .field input{padding:10px 12px; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit}
+    /* 합계 */
     .totals{padding:16px}
     .totals .line{display:flex; justify-content:space-between; align-items:center; padding:6px 0; font-variant-numeric:tabular-nums}
     .totals .grand{margin-top:8px; padding-top:10px; border-top:1px solid rgba(148,163,184,.25); font-size:20px; font-weight:800}
 
-    details{padding:14px;}
-    details summary{cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px}
-    details summary::-webkit-details-marker{display:none}
-    .caret{transition:transform .2s ease}
-    details[open] .caret{transform:rotate(90deg)}
-
-    /* 커스텀 드롭다운 */
-    .dropdown{position:relative}
-    .dropdown-panel{margin-top:10px; max-height:320px; overflow:auto; border:1px solid rgba(148,163,184,.35); border-radius:12px}
-    .option{padding:10px 12px; border-bottom:1px dashed rgba(148,163,184,.15); cursor:pointer; user-select:none}
+    /* 프리셋 셀렉트 */
+    .select{position:relative; display:inline-block}
+    .select-toggle{display:flex; align-items:center; gap:6px; padding:8px 10px; min-width:260px; border-radius:12px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit; cursor:pointer}
+    .select-arrow{font-weight:900; font-size:14px}
+    .select-panel{position:absolute; inset:auto 0 auto 0; top:calc(100% + 8px); z-index:10; display:none; max-height:360px; overflow:auto; border:1px solid rgba(148,163,184,.35); border-radius:12px; background:var(--card); box-shadow:var(--shadow)}
+    @media (prefers-color-scheme: light){ .select-panel{background:var(--cardL);} }
+    .select.open .select-panel{display:block}
+    .option{padding:10px 12px; border-bottom:1px dashed rgba(148,163,184,.12); cursor:pointer; user-select:none}
     .option:last-child{border-bottom:none}
-    .option:hover, .option.active{background:rgba(148,163,184,.15)}
+    .option:hover{background:rgba(148,163,184,.15)}
 
     footer{padding:18px 0; color:var(--muted); font-size:14px}
-    .kbd{font:600 12px/1.3 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background:rgba(148,163,184,.18); padding:.35em .55em; border-radius:8px}
     .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
   </style>
 </head>
@@ -63,7 +56,7 @@
   <div class="container">
     <header>
       <h1>아스팔트 레전드 결제 계산기</h1>
-      <div class="muted">공식: <span class="kbd">(29a+70b+142c+284d+714e+1429f + extra) × 4 + 1000 → 원(ARS)</span></div>
+      <div class="muted">공식: <strong>(29a+70b+142c+284d+714e+1429f + extra) × 4 + 1000 → 원(ARS)</strong></div>
     </header>
 
     <!-- 팩 표 -->
@@ -79,29 +72,27 @@
       </div>
     </section>
 
-    <!-- 사용자 지정 가격 입력 (메모 제거) -->
-    <section class="card panel" style="margin-top:14px" aria-labelledby="extraTitle">
+    <!-- 사용자 지정 가격 입력 -->
+    <section class="card" style="margin-top:14px" aria-labelledby="extraTitle">
       <h2 id="extraTitle" class="sr-only">추가 가격</h2>
-      <div class="field">
-        <label for="extra">사용자 지정 추가 금액 (ARS)</label>
-        <input id="extra" class="num" type="number" step="1" min="0" value="0" />
-        <div class="muted">빈칸에 아무 숫자 입력 → 합계에 그대로 더해집니다.</div>
+      <div style="display:flex; gap:12px; align-items:end; padding:14px">
+        <div>
+          <label for="extra">사용자 지정 추가 금액 (ARS)</label><br/>
+          <input id="extra" class="num" type="number" step="1" min="0" value="0" />
+          <div class="muted" style="margin-top:6px">빈칸에 아무 숫자 입력 → 합계에 그대로 더해집니다.</div>
+        </div>
+        <div>
+          <label class="sr-only" for="presetToggle">프리셋 선택</label><br/>
+          <!-- 작은 네모창 + V 화살표 -->
+          <div class="select" id="presetSelect">
+            <button id="presetToggle" class="select-toggle" type="button" aria-expanded="false" aria-controls="presetPanel">
+              <span id="presetLabel">프리셋 선택</span>
+              <span class="select-arrow">V</span>
+            </button>
+            <div id="presetPanel" class="select-panel" role="listbox" aria-label="프리셋 목록"></div>
+          </div>
+        </div>
       </div>
-    </section>
-
-    <!-- 프리셋/단축키: 드롭다운 방식 -->
-    <section class="card grid" style="margin-top:14px" aria-labelledby="presetTitle">
-      <h2 id="presetTitle" class="sr-only">단축키 및 프리셋</h2>
-      <details class="dropdown" id="presetDropdown">
-        <summary>
-          <span class="caret">▶</span>
-          <strong>프리셋 선택</strong> — <span class="muted">클릭하여 펼치기 (드래그 선택 가능)</span>
-        </summary>
-        <div class="dropdown-panel" id="presetPanel"></div>
-      </details>
-      <details>
-        <summary><strong>단축키</strong> — <span class="muted">1–6: 해당 팩 +1, Shift+1–6: -1 · 0: 초기화 · C: 추가금 포커스 · S: 요약 복사</span></summary>
-      </details>
     </section>
 
     <!-- 합계/결과 -->
@@ -113,13 +104,10 @@
       <div class="grand line"><span>공식 적용: ×4 + 1000</span><strong id="result">0 원(ARS)</strong></div>
     </section>
 
-    <div class="grid" style="grid-template-columns:1fr auto; align-items:center; margin-top:10px">
-      <div class="muted">링크에 현재 값이 저장돼요. 공유 시 재현 가능.</div>
-      <div style="display:flex; gap:8px">
-        <button class="btn" id="resetBtn" title="초기화">초기화</button>
-        <button class="btn" id="shareBtn">공유 링크 복사</button>
-        <button class="btn" id="copyBtn">요약 복사</button>
-      </div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+      <button class="btn" id="resetBtn" title="초기화">초기화</button>
+      <button class="btn" id="shareBtn">공유 링크 복사</button>
+      <button class="btn" id="copyBtn">요약 복사</button>
     </div>
 
     <footer>
@@ -131,7 +119,7 @@
     // ===== 설정 =====
     const PACKS = [29,70,142,284,714,1429];
 
-    // 프리셋 목록 (요청하신 16개)
+    // 프리셋 목록 (16개)
     const PRESETS = [
       {name:'Infiniti Project Black S 쇼룸', qty:[1,2,6,0,0,0]},
       {name:'NIO EP9 쇼룸', qty:[5,1,13,8,0,0]},
@@ -164,7 +152,11 @@
     const extraArsEl = document.getElementById('extraArs');
     const subtotalEl = document.getElementById('subtotal');
     const resultEl = document.getElementById('result');
+
+    const presetSelect = document.getElementById('presetSelect');
+    const presetToggle = document.getElementById('presetToggle');
     const presetPanel = document.getElementById('presetPanel');
+    const presetLabel = document.getElementById('presetLabel');
 
     // 행 렌더링
     function renderRows(){
@@ -204,6 +196,46 @@
       });
     }
 
+    // 프리셋 셀렉트 렌더링
+    function renderPresetSelect(){
+      presetPanel.innerHTML = '';
+      PRESETS.forEach((p,idx)=>{
+        const opt = document.createElement('div');
+        opt.className = 'option';
+        opt.role = 'option';
+        opt.dataset.idx = idx;
+        opt.textContent = `${p.name} — [${p.qty.join(', ')}]`;
+        opt.addEventListener('click', ()=>{ applyPreset(idx); closePreset(); });
+        presetPanel.appendChild(opt);
+      });
+
+      // 토글 버튼 동작 (열기/닫기)
+      presetToggle.addEventListener('click', ()=>{
+        const open = presetSelect.classList.toggle('open');
+        presetToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+
+      // 외부 클릭 시 닫기
+      window.addEventListener('click', (e)=>{
+        if(!presetSelect.contains(e.target)) closePreset();
+      });
+    }
+
+    function closePreset(){
+      presetSelect.classList.remove('open');
+      presetToggle.setAttribute('aria-expanded','false');
+    }
+
+    function applyPreset(i){
+      const arr = PRESETS[i].qty;
+      for(let k=0;k<PACKS.length;k++){
+        state.qty[k] = Math.max(0, +arr[k]||0);
+        const el = document.getElementById('n'+k); if(el) el.value = state.qty[k];
+      }
+      presetLabel.textContent = PRESETS[i].name;
+      update();
+    }
+
     // 계산
     function calc(){
       const sumArs = state.qty.reduce((acc,q,i)=> acc + q*PACKS[i], 0);
@@ -213,10 +245,7 @@
     }
 
     function update(){
-      // 소계 표시
-      state.qty.forEach((q,i)=>{
-        document.getElementById('s'+i).textContent = fmt(q*PACKS[i]);
-      });
+      state.qty.forEach((q,i)=>{ document.getElementById('s'+i).textContent = fmt(q*PACKS[i]); });
       const {sumArs, subtotal, resultWon} = calc();
       sumArsEl.textContent = fmt(sumArs) + ' ARS';
       extraArsEl.textContent = fmt(state.extra||0) + ' ARS';
@@ -230,70 +259,23 @@
       history.replaceState({}, '', location.pathname + (params.toString()?('#'+params.toString()):''));
     }
 
-    // 프리셋 드롭다운 렌더링
-    function renderPresetDropdown(){
-      let dragging = false;
-      PRESETS.forEach((p,idx)=>{
-        const opt = document.createElement('div');
-        opt.className = 'option';
-        opt.textContent = p.name + ' — [' + p.qty.join(', ') + ']';
-        opt.dataset.idx = idx;
-        // 클릭 선택
-        opt.addEventListener('click', ()=>applyPreset(idx));
-        // 드래그 선택
-        opt.addEventListener('mousedown', (e)=>{ dragging = true; opt.classList.add('active'); applyPreset(idx); e.preventDefault(); });
-        opt.addEventListener('mouseenter', ()=>{ if(dragging){ opt.classList.add('active'); applyPreset(idx); }});
-        opt.addEventListener('mouseleave', ()=> opt.classList.remove('active'));
-        presetPanel.appendChild(opt);
-      });
-      window.addEventListener('mouseup', ()=>{ dragging=false; document.querySelectorAll('.option.active').forEach(el=>el.classList.remove('active')); });
-    }
-
-    function applyPreset(i){
-      const arr = PRESETS[i].qty;
-      for(let k=0;k<PACKS.length;k++){
-        state.qty[k] = Math.max(0, +arr[k]||0);
-        const el = document.getElementById('n'+k); if(el) el.value = state.qty[k];
-      }
-      update();
-    }
-
-    // 단축키
-    function handleHotkeys(e){
-      if(e.key>='1' && e.key<='6'){
-        const idx = +e.key - 1;
-        const d = e.shiftKey? -1 : 1;
-        state.qty[idx] = Math.max(0, (state.qty[idx]||0) + d);
-        document.getElementById('n'+idx).value = state.qty[idx];
-        update();
-      } else if(e.key==='0'){ // 전체 초기화
-        resetAll();
-      } else if(e.key.toLowerCase()==='c'){ // 추가금 포커스
-        extraEl.focus(); extraEl.select();
-      } else if(e.key.toLowerCase()==='s'){ // 요약 복사
-        copySummary();
-      }
-    }
-
-    // 공유 링크
+    // 공유 링크 & 요약 복사 & 초기화
     async function copyShare(){
       const url = location.href;
       try{ await navigator.clipboard.writeText(url); alert('공유 링크를 복사했어요!'); }
       catch{ prompt('이 링크를 복사하세요:', url); }
     }
-
-    // 요약 복사
     function copySummary(){
-      const {sumArs, subtotal, resultWon} = calc();
+      const {subtotal, resultWon} = calc();
       const lines = [];
       PACKS.forEach((p,i)=>{ if(state.qty[i]>0) lines.push(`${p} ARS × ${state.qty[i]} = ${state.qty[i]*p} ARS`); });
       if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
       lines.push(`소계: ${Math.round(subtotal)} ARS`);
       lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
-      const text = lines.join('
-');
+      const text = lines.join('\n');
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
     }
+    function resetAll(){ state.qty = state.qty.map(()=>0); state.extra = 0; extraEl.value = 0; presetLabel.textContent = '프리셋 선택'; update(); }
 
     // 복원
     function restoreFromHash(){
@@ -309,20 +291,15 @@
       }
     }
 
-    function resetAll(){
-      state.qty = state.qty.map(()=>0); state.extra = 0; extraEl.value = 0; update();
-    }
-
     // 이벤트 바인딩
     document.getElementById('resetBtn').addEventListener('click', resetAll);
     document.getElementById('shareBtn').addEventListener('click', copyShare);
     document.getElementById('copyBtn').addEventListener('click', copySummary);
     extraEl.addEventListener('input', ()=>{ state.extra = Math.max(0, +extraEl.value||0); update(); });
-    window.addEventListener('keydown', handleHotkeys);
 
     // 초기화
     renderRows();
-    renderPresetDropdown();
+    renderPresetSelect();
     restoreFromHash();
     update();
     document.getElementById('year').textContent = new Date().getFullYear();
