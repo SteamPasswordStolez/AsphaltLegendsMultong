@@ -32,7 +32,7 @@
     .controls{display:inline-grid; grid-template-columns:auto 72px auto; gap:10px; align-items:center}
     .btn{padding:8px 10px; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit; cursor:pointer}
     .btn:focus{outline:3px solid var(--ring); outline-offset:2px}
-    .btn.plus{margin-right:5px} /* + 버튼을 약간 오른쪽으로 */
+    .btn.plus{margin-left:5px} /* + 버튼을 약간 오른쪽으로 */
     .num{width:72px; padding:8px 10px; text-align:center; border-radius:10px; border:1px solid rgba(148,163,184,.35); background:transparent; color:inherit}
 
     /* 합계 */
@@ -271,6 +271,7 @@
       if(state.extra>0) lines.push(`추가: ${state.extra} ARS`);
       lines.push(`소계: ${Math.round(subtotal)} ARS`);
       lines.push(`공식 적용: (소계×4)+1000 = ${Math.round(resultWon)} 원(ARS)`);
+      const text = lines.join('\n');
       navigator.clipboard.writeText(text).then(()=>alert('요약을 복사했어요!')).catch(()=>prompt('복사할 내용을 선택해서 복사하세요:', text));
     }
     function resetAll(){
