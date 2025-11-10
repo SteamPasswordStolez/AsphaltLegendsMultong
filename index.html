@@ -1481,5 +1481,115 @@ body[data-theme="light"] .btn.primary{
 }
 </style>
 
+
+<!-- injected: v3 limited autoshrink (minScale=0.9, fallback to local scroll) -->
+<style id="limited-autoshrink-style">
+/* Local scroll fallback container */
+.local-hscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative;width:100%;}
+.local-hscroll::-webkit-scrollbar{height:8px}
+.local-hscroll > .local-hscroll-inner{display:inline-block;min-width:100%}
+/* Media should not exceed container by default */
+img,video,canvas,svg,iframe,embed,object{max-width:100%;height:auto}
+</style>
+<script id="limited-autoshrink-script">
+(function(){
+  const MIN_SCALE = 0.9; // don't scale smaller than this
+  const EXCLUDE = new Set(['PRE','CODE','KBD','SAMP','TEXTAREA']);
+  const WRAP_CLASS = 'autoshrink-wrap';
+  const TARGET_CLASS = 'autoshrink-target';
+
+  function isExcluded(el){
+    if (EXCLUDE.has(el.tagName)) return true;
+    if (el.closest('.hscroll,.table-wrap,.local-hscroll')) return true;
+    if (el.closest('pre,code,kbd,samp,textarea')) return true;
+    return false;
+  }
+
+  function ensureShrinkWrap(el){
+    if (el.classList.contains(TARGET_CLASS) && el.parentElement?.classList.contains(WRAP_CLASS)) {
+      return el.parentElement;
+    }
+    const wrap = document.createElement('div');
+    wrap.className = WRAP_CLASS;
+    el.classList.add(TARGET_CLASS);
+    el.parentNode.insertBefore(wrap, el);
+    wrap.appendChild(el);
+    return wrap;
+  }
+
+  function makeLocalScroll(el){
+    // unwrap if previously shrink-wrapped
+    if (el.classList.contains(TARGET_CLASS) && el.parentElement?.classList.contains(WRAP_CLASS)){
+      const wrap = el.parentElement;
+      wrap.parentNode.insertBefore(el, wrap);
+      wrap.remove();
+      el.classList.remove(TARGET_CLASS);
+      el.style.transform = 'none';
+    }
+    // already in local-hscroll?
+    if (el.parentElement && el.parentElement.classList.contains('local-hscroll')) return;
+    const outer = document.createElement('div');
+    outer.className = 'local-hscroll';
+    const inner = document.createElement('div');
+    inner.className = 'local-hscroll-inner';
+    el.parentNode.insertBefore(outer, el);
+    outer.appendChild(inner);
+    inner.appendChild(el);
+  }
+
+  function resetScale(el){
+    el.style.transform = 'none';
+    if (el.parentElement?.classList.contains(WRAP_CLASS)){
+      el.parentElement.style.height = '';
+    }
+  }
+
+  function fitElement(el){
+    const vw = document.documentElement.clientWidth;
+    resetScale(el);
+    const sw = el.scrollWidth;
+    if (sw <= vw + 1) return; // fine
+
+    const scale = vw / sw;
+    if (scale >= MIN_SCALE) {
+      // do controlled shrink
+      const wrap = ensureShrinkWrap(el);
+      el.style.transform = 'scale(' + scale + ')';
+      const rect = el.getBoundingClientRect();
+      wrap.style.height = rect.height + 'px';
+    } else {
+      // below readable threshold -> local horizontal scroll
+      makeLocalScroll(el);
+    }
+  }
+
+  function collectOffenders(){
+    const vw = document.documentElement.clientWidth;
+    const all = Array.from(document.body.querySelectorAll('*'));
+    return all.filter(el=>{
+      if (!(el instanceof HTMLElement)) return false;
+      if (isExcluded(el)) return false;
+      if (el.offsetParent === null) return false;
+      if (el.tagName === 'HTML' || el.tagName === 'BODY') return false;
+      if (el.clientWidth === 0 && el.clientHeight === 0) return false;
+      try { return el.scrollWidth > vw + 1; } catch(e){ return false; }
+    });
+  }
+
+  function apply(){
+    collectOffenders().forEach(fitElement);
+  }
+
+  let rafId=null;
+  function schedule(){ if(rafId) cancelAnimationFrame(rafId); rafId=requestAnimationFrame(apply); }
+
+  window.addEventListener('load', schedule, {passive:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  const ro = new ResizeObserver(()=>schedule()); ro.observe(document.documentElement);
+  const mo = new MutationObserver(()=>schedule());
+  mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['style','class']});
+})();
+</script>
+
 </body>
 </html>
