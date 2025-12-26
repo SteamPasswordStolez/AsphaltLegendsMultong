@@ -1,1595 +1,288 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="system">
+<html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Asphalt Legends 계산기 · Preset · History · Theme · Share</title>
-  <style>
-    :root {
-      --bg: #ffffff;
-      --fg: #0f172a; /* slate-900 */
-      --muted: #6b7280; /* gray-500 */
-      --card: #f8fafc; /* slate-50 */
-      --border: #e5e7eb; /* gray-200 */
-      --accent: #3b82f6; /* blue-500 */
-      --accent-fg: #ffffff;
-      --danger: #ef4444; /* red-500 */
-      --success: #10b981; /* emerald-500 */
-    }
-    [data-theme="dark"] {
-      --bg: #0b1020;
-      --fg: #e5e7eb;
-      --muted: #9aa1ad;
-      --card: #0f172a;
-      --border: #1f2937;
-      --accent: #60a5fa;
-      --accent-fg: #0b1020;
-      --danger: #f87171;
-      --success: #34d399;
-    }
-    /* === Extra Themes === */
-    [data-theme="onyx"]{
-      --bg: linear-gradient(135deg, #0b0b0b, #1a1a1a);
-      --fg:#e0e0e0; --muted:#8a8a8a; --card:#121212; --border:#1f1f1f;
-      --accent:#3a8ef6; --accent-fg:#000;
-    }
-    [data-theme="chroma-glow"]{
-      --bg: linear-gradient(120deg, #000000, #1b0034 40%, #002f4b 80%);
-      --fg:#f4f4f4; --muted:#9d9d9d; --card:#090909; --border:#1a1a1a;
-      --accent: linear-gradient(90deg, #ff00cc, #3333ff); --accent-fg:#ffffff;
-    }
-    [data-theme="sunset"]{
-      --bg: linear-gradient(160deg, #ff9966, #ff5e62);
-      --fg:#fff8f0; --muted:#ffe0c7; --card: rgba(255,255,255,0.08); --border:#ffffff22;
-      --accent:#ffd700; --accent-fg:#703300;
-    }
-    [data-theme="forest"]{
-      --bg: linear-gradient(180deg, #0a3d2e, #062a1f);
-      --fg:#d8f3dc; --muted:#a9d6c6; --card:#0d2f22; --border:#1a3a2c;
-      --accent:#52b788; --accent-fg:#0a3d2e;
-    }
-    [data-theme="crimson-moon"]{
-      --bg: linear-gradient(145deg, #1b0a0f, #3a0b14);
-      --fg:#f8d7da; --muted:#b89a9c; --card:#2b1018; --border:#4a1a24;
-      --accent:#ff4d6d; --accent-fg:#220006;
-    }
-    [data-theme="midnight-blueviolet"]{
-      --bg: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81);
-      --fg:#e0e7ff; --muted:#a5b4fc; --card:#1e1b4b; --border:#2a2c5a;
-      --accent:#818cf8; --accent-fg:#0f172a;
-    }
-    [data-theme="neon-night"]{
-      --bg:#05010f;
-      --fg:#e6e6fa; --muted:#9a9abd; --card: linear-gradient(135deg, #0b0019, #12002b); --border:#2a1149;
-      --accent: linear-gradient(90deg, #00ffff, #ff00ff); --accent-fg:#000;
-    }
-    [data-theme="aurora"]{
-      --bg: linear-gradient(160deg, #0b0033, #004f4f 40%, #001a33 90%);
-      --fg:#e0f7fa; --muted:#a7cbd1; --card: rgba(255,255,255,0.05); --border:#58a6aa44;
-      --accent: linear-gradient(90deg, #00ffff, #00ff87, #00ffa2); --accent-fg:#001818;
-    }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      background: var(--bg);
-      color: var(--fg);
-    }
-    .container { max-width: 980px; margin: 24px auto; padding: 0 16px; }
-    .row { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
-    .title { font-weight: 800; font-size: 22px; margin: 0 0 8px; }
-    .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
-    label { font-size: 13px; color: var(--muted); display: block; margin-bottom: 6px; }
-    input[type="number"], input[type="text"], select { width: 100%; padding: 10px 12px; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 12px; outline: none; }
-    input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .inline { display: flex; gap: 8px; align-items: center; }
-    .btn { cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--fg); border-radius: 12px; padding: 10px 14px; font-weight: 700; }
-    .btn:hover { border-color: var(--accent); }
-    .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-    .btn.ghost { background: transparent; }
-    .btn.small { padding: 6px 10px; font-weight: 600; }
-    .chip { display:inline-flex; align-items:center; gap:6px; background: var(--bg); border:1px solid var(--border); padding:6px 10px; border-radius:999px; color:var(--muted); font-size:12px; }
-    .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    .grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; }
-    .pack { display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center; }
-    .pack input { text-align: right; font-variant-numeric: tabular-nums; }
-    .stat { display:flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border); font-variant-numeric: tabular-nums; }
-    .stat:last-child { border-bottom: 0; }
-    .muted { color: var(--muted); }
-    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace; font-size: 12px; background: var(--bg); border:1px solid var(--border); border-radius:6px; padding:2px 6px; }
-    .section-title { font-weight: 800; margin: 8px 0 6px; font-size: 16px; }
-    hr { border: 0; height: 1px; background: var(--border); margin: 12px 0; }
-    .list { display:flex; flex-direction: column; gap:8px; }
-    .history-item { display:flex; justify-content: space-between; gap:12px; align-items:center; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:var(--bg); }
-    .tag { background: var(--card); border:1px solid var(--border); color: var(--muted); font-size:12px; padding:2px 8px; border-radius:999px; }
-    .danger { color: var(--danger); }
-    .success { color: var(--success); }
-    .spacer { height: 4px; }
-    .dev { font-size:12px; color:var(--muted); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네오 스피드: 레전드 - v0.0.2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: 'Segoe UI', sans-serif; }
+        #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        /* Nitro Bar */
+        .nitro-bar-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 350px; height: 14px; background: rgba(255,255,255,0.1); border-radius: 7px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
+        #nitro-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #ffd700, #ff4500); transition: width 0.1s linear; position: relative; }
+        #nitro-bar.shockwave { background: linear-gradient(90deg, #bf00ff, #ff007f); box-shadow: 0 0 20px #bf00ff; }
+
+        /* Speedometer */
+        #speedometer { position: absolute; bottom: 40px; right: 40px; color: #fff; text-align: right; }
+        #speed-value { font-size: 64px; font-weight: 900; font-style: italic; line-height: 1; color: #00ffff; }
+        
+        /* Messages */
+        #message-box { position: absolute; top: 120px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 32px; font-weight: 900; opacity: 0; transition: transform 0.3s, opacity 0.3s; text-shadow: 0 0 20px rgba(255,255,255,0.8); font-style: italic; }
+        
+        .controls-guide { position: absolute; bottom: 40px; left: 40px; color: rgba(255,255,255,0.5); font-size: 13px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="row">
-      <!-- Header Card -->
-      <div class="card" style="grid-column: span 12; display:flex; justify-content: space-between; align-items: center; gap:12px; flex-wrap: wrap;">
-        <div>
-          <div class="title">Asphalt Legends 결제 계산기 — Preset · History · Share</div>
-          <div class="subtitle">프리셋 저장/불러오기, 최근 5회 히스토리, 요약 복사(텍스트/Markdown/Discord), 테마(라이트/다크/시스템) 지원</div>
-        </div>
-        <div class="inline" role="group" aria-label="Theme">
-          <label for="themeSelect" class="muted" style="font-size:13px;">테마</label>
-          <select id="themeSelect">
-            <option value="system">시스템</option>
-            <option value="light">라이트</option>
-            <option value="dark">어두운 테마</option>
-            <option value="onyx">오닉스</option>
-            <option value="chroma-glow">크로마 그로우</option>
-            <option value="sunset">일몰</option>
-            <option value="forest">숲</option>
-            <option value="crimson-moon">진홍빛 달</option>
-            <option value="midnight-blueviolet">한밤중 파랑보라</option>
-            <option value="neon-night">네온 나이트</option>
-            <option value="aurora">오로라</option>
-          </select>
-        </div>
-      </div>
 
-      <!-- Input Card -->
-      <div class="card" style="grid-column: span 8;">
-        <div class="section-title">입력</div>
-        <div class="grid-3" id="packs"><!-- Packs will be injected --></div>
-        <div class="spacer"></div>
-        <div class="grid-3">
-          <div>
-            <label for="extraARS">추가 금액(ARS)</label>
-            <input id="extraARS" type="number" min="0" value="0" />
-          </div>
-          <div>
-            <label for="rate">환율 (1 ARS → KRW)</label>
-            <input id="rate" type="number" step="0.001" min="0" value="4" />
-          </div>
-          <div>
-            <label for="note">메모(선택)</label>
-            <input id="note" type="text" placeholder="예: 블프 프로모션 세팅" />
-          </div>
+    <div id="ui-layer">
+        <div class="nitro-bar-container">
+            <div id="nitro-bar"></div>
         </div>
-        <div class="spacer"></div>
-        <div class="inline">
-          <button class="btn primary" id="btnCalc">계산하기</button>
-          <button class="btn" id="btnClear">초기화</button>
-          <span id="calcStatus" class="chip">대기 중</span>
+        <div id="message-box">ACTION!</div>
+        <div id="speedometer">
+            <div id="speed-value">0</div>
+            <div class="font-bold tracking-widest text-cyan-400">KM/H</div>
         </div>
-      </div>
-
-      <!-- Result Card -->
-      <div class="card" style="grid-column: span 4;">
-        <div class="section-title">결과</div>
-        <div id="results">
-          <div class="stat"><span>총합(ARS)</span><strong id="sumARS">0</strong></div>
-          <div class="stat"><span>환산(KRW)</span><strong id="sumKRW">₩0</strong></div>
+        <div class="controls-guide">
+            <span class="text-white font-bold">W / ↑</span> 가속 &nbsp; <span class="text-white font-bold">A, D / ←, →</span> 조향<br>
+            <span class="text-white font-bold">S 2회 연타</span> 지상/공중 360도 회전<br>
+            <span class="text-white font-bold">배럴롤 점프대(보라색)</span> 자동 배럴롤 발동<br>
+            <span class="text-white font-bold">Space</span> 니트로 (쇼크웨이브 포함)
         </div>
-        <div class="subtitle" id="feeNote">* 계산식: (총합 ARS × 환율) + 고정수수료 <strong>₩1,000</strong> 포함</div>
-        <hr />
-        <label for="formatSelect">요약 복사 포맷</label>
-        <div class="inline">
-          <select id="formatSelect">
-            <option value="text">텍스트</option>
-            <option value="md">Markdown</option>
-            <option value="discord">Discord</option>
-          </select>
-          <button class="btn" id="btnCopy">요약 복사</button>
-        </div>
-        <div id="copyStatus" class="subtitle" style="margin-top:8px;"></div>
-      </div>
-
-      <!-- Preset Card -->
-      <div class="card" style="grid-column: span 6;">
-        <div class="section-title">프리셋</div>
-        <div class="grid-2">
-          <div>
-            <label for="presetName">프리셋 이름</label>
-            <input id="presetName" type="text" placeholder="예: 월정액 기본" />
-          </div>
-          <div>
-            <label>&nbsp;</label>
-            <div class="inline">
-              <button class="btn" id="btnSavePreset">프리셋 저장</button>
-              <button class="btn danger" id="btnDeletePreset">삭제</button>
-            </div>
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <label for="presetSelect">프리셋 불러오기</label>
-        <div class="inline">
-          <select id="presetSelect"></select>
-          <button class="btn" id="btnLoadPreset">불러오기</button>
-        </div>
-        <div id="presetStatus" class="subtitle" style="margin-top:8px;"></div>
-      </div>
-
-      <!-- History Card -->
-      <div class="card" style="grid-column: span 6;">
-        <div class="section-title">히스토리 (최근 5회)</div>
-        <div class="list" id="historyList"></div>
-        <div class="inline" style="margin-top:8px;">
-          <button class="btn ghost danger" id="btnClearHistory">히스토리 비우기</button>
-        </div>
-      </div>
-
-      <!-- Remote Preset Card -->
-      <div class="card" style="grid-column: span 12;">
-        <div class="section-title">원격 프리셋 가져오기 (선택)</div>
-        <div class="grid-2">
-          <div>
-            <label for="remoteUrl">프리셋이 있는 페이지 URL</label>
-            <input id="remoteUrl" type="text" placeholder="예: https://steampasswordstolez.github.io/AsphaltLegendsMultong/" />
-          </div>
-          <div>
-            <label>&nbsp;</label>
-            <div class="inline">
-              <button class="btn" id="btnFetchRemote">가져오기</button>
-              <span class="subtitle" id="remoteStatus"></span>
-            </div>
-          </div>
-        </div>
-        <div class="subtitle">설명: 드롭다운의 옵션 텍스트(프리셋 이름)를 읽어와 프리셋 목록에 추가합니다. (동일 이름은 건너뜀)</div>
-      </div>
-
-      <!-- Test Card -->
-      <div class="card" style="grid-column: span 12;">
-        <div class="section-title">개발자 도구 · 테스트</div>
-        <div class="inline">
-          <button class="btn" id="btnRunTests">테스트 실행</button>
-          <span id="testStatus" class="dev">대기 중</span>
-        </div>
-        <div class="dev">콘솔(DevTools)을 열면 상세 결과를 볼 수 있습니다.</div>
-      </div>
-
     </div>
-  </div>
 
-  <script>
-    // ==== Constants =====
-    const PACKS = [29, 70, 142, 284, 714, 1429];
-    const LS_KEYS = {
-      PRESETS: 'al_calc_presets',
-      HISTORY: 'al_calc_history',
-      THEME: 'al_calc_theme'
-    };
+    <script>
+        let scene, camera, renderer, car, clock;
+        let speed = 0, velocityY = 0;
+        const gravity = -0.008;
+        const maxSpeed = 1.3;
+        const acceleration = 0.006;
+        const friction = 0.985;
+        
+        let nitroAmount = 30;
+        let isNitroActive = false, isShockwave = false;
+        let isSpinning = false, isBarrelRolling = false;
+        let spinAngle = 0, barrelRollAngle = 0;
+        
+        const ramps = [];
+        const keys = {};
+        let lastSKeyTime = 0;
 
-    // ==== Utilities =====
-    const fmtARS = (n) => new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 }).format(n);
-    const fmtKRW = (n) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 }).format(n);
-    const nowStr = () => new Date().toLocaleString('ko-KR');
+        const RAMP_TYPE = { NORMAL: 'normal', BARREL: 'barrel' };
 
-    function readCounts() {
-      const counts = {};
-      PACKS.forEach(v => {
-        counts[v] = parseInt(document.getElementById('pack-' + v).value || '0', 10);
-      });
-      return counts;
-    }
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020205);
+            scene.fog = new THREE.Fog(0x020205, 20, 150);
 
-    function applyCounts(counts) {
-      PACKS.forEach(v => {
-        document.getElementById('pack-' + v).value = counts[v] ?? 0;
-      });
-    }
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-    function sumARS(counts, extra) {
-      let total = 0;
-      PACKS.forEach(v => total += v * (counts[v] || 0));
-      total += extra;
-      return Math.max(0, Math.round(total));
-    }
+            scene.add(new THREE.AmbientLight(0x404040, 1.5));
+            const sun = new THREE.DirectionalLight(0xffffff, 1);
+            sun.position.set(5, 15, 10);
+            scene.add(sun);
 
-    function toSummaryObj() {
-      const counts = readCounts();
-      const extra = Number(document.getElementById('extraARS').value || 0);
-      const rate = Number(document.getElementById('rate').value || 0);
-      const totalARS = sumARS(counts, extra);
-      const totalKRW = Math.round(totalARS * rate + 1000); // +1000원 고정 수수료 포함
-      return { counts, extra, rate, totalARS, totalKRW, note: document.getElementById('note').value || '' };
-    }
+            createEnvironment();
+            createCar();
+            createRamps();
 
-    function renderTotals(obj) {
-      document.getElementById('sumARS').textContent = fmtARS(obj.totalARS) + ' ARS';
-      document.getElementById('sumKRW').textContent = fmtKRW(obj.totalKRW);
-    }
+            clock = new THREE.Clock();
+            
+            window.addEventListener('keydown', (e) => {
+                keys[e.code] = true;
+                if (e.code === 'KeyS') {
+                    const now = Date.now();
+                    if (now - lastSKeyTime < 300 && !isSpinning) {
+                        start360Spin(); // Always 360 on S double tap
+                    }
+                    lastSKeyTime = now;
+                }
+                if (e.code === 'Space' && nitroAmount > 10 && !isNitroActive) activateNitro();
+            });
+            window.addEventListener('keyup', (e) => keys[e.code] = false);
+            window.addEventListener('resize', onWindowResize);
 
-    function setStatus(id, text, ok=true) {
-      const el = document.getElementById(id);
-      el.textContent = text;
-      el.style.color = ok ? 'var(--success)' : 'var(--danger)';
-    }
-
-    // ==== Packs UI build =====
-    (function buildPacks(){
-      const root = document.getElementById('packs');
-      PACKS.forEach(v => {
-        const wrap = document.createElement('div');
-        wrap.className = 'pack';
-        const left = document.createElement('div');
-        left.innerHTML = `<label>팩 ${v} ARS</label>`;
-        const rightWrap = document.createElement('div');
-        rightWrap.className = 'inline';
-        const minus = document.createElement('button'); minus.className = 'btn small'; minus.textContent = '−';
-        const input = document.createElement('input'); input.type = 'number'; input.min = '0'; input.value = '0'; input.id = 'pack-' + v;
-        const plus = document.createElement('button'); plus.className = 'btn small'; plus.textContent = '+';
-        minus.addEventListener('click', () => { input.value = Math.max(0, (parseInt(input.value||'0',10)-1)); autoCalc(); });
-        plus.addEventListener('click', () => { input.value = Math.max(0, (parseInt(input.value||'0',10)+1)); autoCalc(); });
-        input.addEventListener('input', autoCalc);
-        rightWrap.append(minus, input, plus);
-        wrap.append(left, rightWrap);
-        root.appendChild(wrap);
-      });
-    })();
-
-    // ==== Calculation & History =====
-    function calculate() {
-      const obj = toSummaryObj();
-      renderTotals(obj);
-      setStatus('calcStatus', '계산 완료 • ' + nowStr());
-      pushHistory(obj);
-      renderHistory();
-      return obj;
-    }
-
-    function autoCalc(){
-      const obj = toSummaryObj();
-      renderTotals(obj);
-      setStatus('calcStatus', '자동 계산 • 임시 (히스토리 저장 안 됨)', true);
-    }
-
-    function pushHistory(obj){
-      const arr = JSON.parse(localStorage.getItem(LS_KEYS.HISTORY) || '[]');
-      arr.unshift({ ...obj, ts: Date.now() });
-      const trimmed = arr.slice(0,5);
-      localStorage.setItem(LS_KEYS.HISTORY, JSON.stringify(trimmed));
-    }
-
-    function renderHistory(){
-      const root = document.getElementById('historyList');
-      root.innerHTML = '';
-      const arr = JSON.parse(localStorage.getItem(LS_KEYS.HISTORY) || '[]');
-      if(arr.length===0){
-        const empty = document.createElement('div');
-        empty.className = 'subtitle';
-        empty.textContent = '아직 히스토리가 없습니다.';
-        root.appendChild(empty);
-        return;
-      }
-      arr.forEach((h) => {
-        const row = document.createElement('div');
-        row.className = 'history-item';
-        const left = document.createElement('div');
-        const parts = [`${new Date(h.ts).toLocaleString('ko-KR')}`];
-        if(h.note) parts.push(`메모: ${h.note}`);
-        left.innerHTML = `<div><strong>₳ ${fmtARS(h.totalARS)}</strong> → <strong>${fmtKRW(h.totalKRW)}</strong></div>
-                          <div class="muted">${parts.join(' • ')}</div>`;
-        const btns = document.createElement('div');
-        const load = document.createElement('button'); load.className = 'btn small'; load.textContent = '불러오기';
-        load.addEventListener('click', ()=>{ applyCounts(h.counts); document.getElementById('extraARS').value = h.extra; document.getElementById('rate').value = h.rate; document.getElementById('note').value = h.note || ''; calculate(); });
-        btns.appendChild(load);
-        row.append(left, btns);
-        root.appendChild(row);
-      });
-    }
-
-    // ==== Presets =====
-    function getPresets(){ return JSON.parse(localStorage.getItem(LS_KEYS.PRESETS) || '{}'); }
-    function savePresets(obj){ localStorage.setItem(LS_KEYS.PRESETS, JSON.stringify(obj)); }
-
-    // 기본 프리셋 시드(요청: Infiniti Black S, NIO EP9, BMW i8 등)
-    function seedDefaultPresets(){
-      const seed = {
-  "Infiniti Project Black S 쇼룸": { counts:{29:1,70:2,142:6,284:0,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "NIO EP9 쇼룸": { counts:{29:5,70:1,142:13,284:8,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "BMW i8 쇼룸": { counts:{29:1,70:7,142:6,284:5,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Renault Sport R.S.01 쇼룸": { counts:{29:1,70:1,142:2,284:7,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Lotus Emira 쇼룸": { counts:{29:1,70:4,142:7,284:8,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Lamborghini Miura 쇼룸": { counts:{29:1,70:0,142:2,284:5,714:3,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Honda Civic Type-R 쇼룸": { counts:{29:1,70:2,142:4,284:7,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Renault Dezir 쇼룸": { counts:{29:3,70:8,142:6,284:0,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Renault TreZor 쇼룸": { counts:{29:1,70:4,142:7,284:5,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Ferrari Monza SP1 쇼룸": { counts:{29:1,70:3,142:5,284:8,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Volkswagen W12 쇼룸": { counts:{29:1,70:0,142:0,284:5,714:2,1429:3}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Lamborghini Sian FKP 37 쇼룸": { counts:{29:1,70:0,142:0,284:10,714:7,1429:11}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Boxwell MK X 500 쇼룸": { counts:{29:1,70:5,142:5,284:6,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Aston Martin V12 Speedstar 쇼룸": { counts:{29:2,70:3,142:6,284:5,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Saleen S1 쇼룸": { counts:{29:3,70:4,142:6,284:10,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" },
-  "Vanda Dendrobium 쇼룸": { counts:{29:7,70:2,142:19,284:13,714:0,1429:0}, extra:0, rate:4, note:"기본 쇼룸" }
-};
-      const existing = getPresets();
-      const merged = { ...seed, ...existing }; // 기존이 우선
-      savePresets(merged);
-    }
-
-    // 원격 페이지에서 프리셋 이름을 추출하여 추가
-    async function fetchRemotePresets(url){
-      const res = await fetch(url, { mode: 'cors' });
-      const html = await res.text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const options = Array.from(doc.querySelectorAll('option'))
-        .map(o=>o.textContent.trim())
-        .filter(t=>t && !/프리셋 선택/i.test(t));
-      if(options.length===0) return { added:0, names:[] };
-      const presets = getPresets();
-      let added = 0; const names = [];
-      options.forEach(name=>{
-        if(!(name in presets)){
-          presets[name] = { counts:{29:0,70:0,142:0,284:0,714:0,1429:0}, extra:0, rate:Number(document.getElementById('rate').value||4), note:'원격에서 추가' };
-          added++; names.push(name);
+            animate();
         }
-      });
-      savePresets(presets);
-      refreshPresetSelect();
-      return { added, names };
-    }
 
-    function refreshPresetSelect(){
-      const sel = document.getElementById('presetSelect');
-      sel.innerHTML = '';
-      const presets = getPresets();
-      const names = Object.keys(presets);
-      if(names.length===0){
-        const opt = document.createElement('option');
-        opt.textContent = '프리셋 없음';
-        opt.value = '';
-        sel.appendChild(opt);
-        return;
-      }
-      names.forEach(n => {
-        const opt = document.createElement('option');
-        opt.value = n; opt.textContent = n;
-        sel.appendChild(opt);
-      });
-    }
+        function createEnvironment() {
+            const roadGeo = new THREE.PlaneGeometry(24, 10000);
+            const roadMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            const road = new THREE.Mesh(roadGeo, roadMat);
+            road.rotation.x = -Math.PI / 2;
+            scene.add(road);
 
-    // ==== Preset Button Wiring =====
-    document.getElementById('btnSavePreset').addEventListener('click', ()=>{
-      const name = (document.getElementById('presetName').value || '').trim();
-      if(!name){ setStatus('presetStatus','프리셋 이름을 입력하세요.', false); return; }
-      const obj = toSummaryObj();
-      const presets = getPresets();
-      presets[name] = obj;
-      savePresets(presets);
-      refreshPresetSelect();
-      setStatus('presetStatus',`프리셋 "${name}" 저장됨`);
-    });
-
-    document.getElementById('btnLoadPreset').addEventListener('click', ()=>{
-      const sel = document.getElementById('presetSelect');
-      const name = sel.value;
-      const presets = getPresets();
-      if(!name || !presets[name]){ setStatus('presetStatus','불러올 프리셋이 없습니다.', false); return; }
-      const p = presets[name];
-      applyCounts(p.counts); document.getElementById('extraARS').value = p.extra; document.getElementById('rate').value = p.rate; document.getElementById('note').value = p.note || '';
-      calculate();
-      setStatus('presetStatus',`프리셋 "${name}" 불러옴`);
-    });
-
-    document.getElementById('btnDeletePreset').addEventListener('click', ()=>{
-      const name = (document.getElementById('presetName').value || document.getElementById('presetSelect').value || '').trim();
-      if(!name){ setStatus('presetStatus','삭제할 프리셋 이름을 선택/입력하세요.', false); return; }
-      const presets = getPresets();
-      if(!(name in presets)){ setStatus('presetStatus','해당 이름의 프리셋이 없습니다.', false); return; }
-      delete presets[name];
-      savePresets(presets);
-      refreshPresetSelect();
-      setStatus('presetStatus',`프리셋 "${name}" 삭제됨`);
-    });
-
-    document.getElementById('btnFetchRemote').addEventListener('click', async ()=>{
-      const url = (document.getElementById('remoteUrl').value||'').trim();
-      if(!url){
-        document.getElementById('remoteStatus').textContent = 'URL을 입력하세요.';
-        document.getElementById('remoteStatus').style.color = 'var(--danger)';
-        return;
-      }
-      document.getElementById('remoteStatus').textContent = '가져오는 중...';
-      document.getElementById('remoteStatus').style.color = '';
-      try{
-        const { added, names } = await fetchRemotePresets(url);
-        document.getElementById('remoteStatus').textContent = `${added}개 추가됨` + (names.length?` — ${names.join(', ')}`:'');
-        document.getElementById('remoteStatus').style.color = 'var(--success)';
-      } catch(e){
-        document.getElementById('remoteStatus').textContent = '가져오기 실패(CORS 또는 페이지 구조 변경)';
-        document.getElementById('remoteStatus').style.color = 'var(--danger)';
-      }
-    });
-
-    // ==== Copy Summary =====
-    function buildSummary(obj, mode){
-      const lines = [];
-      lines.push(`[요약] 총합: ${fmtARS(obj.totalARS)} ARS → ${fmtKRW(obj.totalKRW)} (환율 ${obj.rate}, +₩1,000 포함)`);
-      const parts = PACKS.map(v => `${v}×${obj.counts[v]||0}`).join(', ');
-      // FIX: 올바른 템플릿 리터럴/삼항 사용 (이전 오류 지점)
-      lines.push(`팩: ${parts}${obj.extra ? `, 추가 ${fmtARS(obj.extra)} ARS` : ''}`);
-      if(obj.note) lines.push(`메모: ${obj.note}`);
-
-      if(mode==='md'){
-        return `**결제 요약**\n\n- **총합**: ${fmtARS(obj.totalARS)} ARS → **${fmtKRW(obj.totalKRW)}** (환율 ${obj.rate}, +₩1,000 포함)\n- **팩**: ${parts}${obj.extra?`\n- **추가**: ${fmtARS(obj.extra)} ARS`:''}${obj.note?`\n- **메모**: ${obj.note}`:''}`;
-      }
-      if(mode==='discord'){
-        return `**결제 요약**\n\n> 총합: **${fmtARS(obj.totalARS)} ARS → ${fmtKRW(obj.totalKRW)}** (환율 ${obj.rate}, +₩1,000 포함)\n> 팩: ${parts}${obj.extra?`\n> 추가: ${fmtARS(obj.extra)} ARS`:''}${obj.note?`\n> 메모: ${obj.note}`:''}`;
-      }
-      return lines.join('\n');
-    }
-
-    document.getElementById('btnCopy').addEventListener('click', async ()=>{
-      const obj = toSummaryObj();
-      const mode = document.getElementById('formatSelect').value;
-      const text = buildSummary(obj, mode);
-      try {
-        await navigator.clipboard.writeText(text);
-        setStatus('copyStatus','클립보드에 복사됨');
-      } catch(e){
-        setStatus('copyStatus','복사 실패: 브라우저 권한을 확인하세요', false);
-      }
-    });
-
-    // ==== Theme handling =====
-    function setTheme(mode){
-      const html = document.documentElement;
-      if(mode==='system'){
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        html.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-      } else {
-        html.setAttribute('data-theme', mode);
-      }
-      localStorage.setItem(LS_KEYS.THEME, mode);
-      const sel = document.getElementById('themeSelect');
-      if(sel && sel.value !== mode) sel.value = mode;
-    }
-
-    const themeSelect = document.getElementById('themeSelect');
-    if(themeSelect){
-      themeSelect.addEventListener('change', (e)=> setTheme(e.target.value));
-    }
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{
-      const mode = localStorage.getItem(LS_KEYS.THEME) || 'system';
-      if(mode==='system') setTheme('system');
-    });
-
-    // ==== Tests =====
-    function runTests(){
-      const results = [];
-      function ok(cond, msg){ results.push({ ok: !!cond, msg }); if(!cond) console.error('[FAIL]', msg); else console.log('[PASS]', msg); }
-
-      // Test 1: sumARS()
-      ok(sumARS({29:1,70:0,142:0,284:0,714:0,1429:0}, 0) === 29, 'sumARS: 29×1 = 29');
-      ok(sumARS({29:2,70:1,142:0,284:0,714:0,1429:0}, 5) === 29*2+70+5, 'sumARS: mixed + extra');
-
-      // Test 2: toSummaryObj()
-      document.getElementById('pack-29').value = 1;
-      document.getElementById('pack-70').value = 0;
-      document.getElementById('pack-142').value = 0;
-      document.getElementById('pack-284').value = 0;
-      document.getElementById('pack-714').value = 0;
-      document.getElementById('pack-1429').value = 0;
-      document.getElementById('extraARS').value = 0;
-      document.getElementById('rate').value = 4;
-      const obj = toSummaryObj();
-      ok(obj.totalARS === 29, 'toSummaryObj: totalARS correct');
-      ok(obj.totalKRW === Math.round(29*4 + 1000), 'toSummaryObj: +1000원 포함 계산');
-
-      // Test 3: Theme set/get (light/dark)
-      setTheme('dark');
-      ok(document.documentElement.getAttribute('data-theme') === 'dark', 'Theme switch to dark');
-      setTheme('light');
-      ok(document.documentElement.getAttribute('data-theme') === 'light', 'Theme switch to light');
-
-      // Test 4: Custom theme switch
-      setTheme('aurora');
-      ok(document.documentElement.getAttribute('data-theme') === 'aurora', 'Theme switch to aurora');
-
-      // Test 5: buildSummary() - extra 포함/미포함 검증
-      document.getElementById('extraARS').value = 123;
-      const obj2 = toSummaryObj();
-      const text = buildSummary(obj2, 'text');
-      ok(text.includes('추가') === true, 'buildSummary(text): extra > 0이면 "추가" 포함');
-      document.getElementById('extraARS').value = 0;
-      const obj3 = toSummaryObj();
-      const text2 = buildSummary(obj3, 'text');
-      ok(text2.includes('추가') === false, 'buildSummary(text): extra = 0이면 "추가" 미포함');
-
-      const pass = results.every(r=>r.ok);
-      setStatus('testStatus', pass ? `모든 테스트 통과 (${results.length}/${results.length})` : `일부 실패 (${results.filter(r=>r.ok).length}/${results.length})`, pass);
-    }
-
-    document.getElementById('btnRunTests').addEventListener('click', runTests);
-
-    // ==== Wiring =====
-    document.getElementById('btnCalc').addEventListener('click', calculate);
-    document.getElementById('btnClear').addEventListener('click', ()=>{
-      applyCounts({});
-      document.getElementById('extraARS').value = 0;
-      document.getElementById('rate').value = 4;
-      document.getElementById('note').value = '';
-      renderTotals({ totalARS:0, totalKRW:0 });
-      setStatus('calcStatus','초기화 완료');
-    });
-
-    document.getElementById('btnClearHistory').addEventListener('click', ()=>{
-      localStorage.removeItem(LS_KEYS.HISTORY);
-      renderHistory();
-    });
-
-    // Auto-calc bindings
-    document.getElementById('extraARS').addEventListener('input', autoCalc);
-    document.getElementById('rate').addEventListener('input', autoCalc);
-
-    // ==== Init =====
-    (function init(){
-      seedDefaultPresets();
-      refreshPresetSelect();
-      renderHistory();
-      const savedTheme = localStorage.getItem(LS_KEYS.THEME) || 'system';
-      setTheme(savedTheme);
-      const sel = document.getElementById('themeSelect');
-      if(sel) sel.value = savedTheme;
-      autoCalc();
-      const remote = document.getElementById('remoteUrl');
-      if(remote) remote.value = 'https://steampasswordstolez.github.io/AsphaltLegendsMultong/';
-    })();
-  </script>
-
-<!-- v1.4.0 — EV Simulator (Monte Carlo) -->
-<style id="ev-sim-style">
-#ev-sim { margin-top: 24px; border-radius: 12px; padding: 16px; background: color-mix(in oklab, var(--card) 85%, black 15%); border: 1px solid var(--border); }
-#ev-sim h2 { margin: 0 0 12px; font-size: 1.1rem; }
-#ev-sim .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-#ev-sim label { font-size: .9rem; opacity: .9; display:block; margin-bottom: 4px; }
-#ev-sim input[type="number"] { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--fg); }
-#ev-sim .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-#ev-sim .btn { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); cursor:pointer; }
-#ev-sim .statbox { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-top:12px;}
-#ev-sim .statitem { padding:10px; border-radius:10px; background: color-mix(in oklab, var(--card) 80%, black 20%); border:1px solid var(--border); }
-#ev-sim .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-#ev-sim small.hint { opacity:.75; }
-#ev-sim details { margin-top: 12px; }
-#ev-sim pre { max-height: 260px; overflow: auto; padding: 10px; background: color-mix(in oklab, var(--card) 80%, black 20%); border:1px solid var(--border); border-radius:10px; }
-</style>
-
-
-<!-- v1.5.0 Fullstar Expectation Simulator (interactive) -->
-<section id="ev-sim" class="card">
-  <h3>풀성 기댓값 시뮬레이터 (v1.5.0)</h3>
-  <p style="font-size:0.9rem; color:#ffcc00; opacity:0.85; margin-top:-4px;">⚠️ 본 시뮬레이션은 모바일 환경에서의 사용이 원활하지 않을 수 있습니다. PC 이용을 권장합니다.</p>
-  <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
-    <label>🎟️ 팩 가격 (토큰)
-      <input id="packPrice" type="number" min="0" value="75">
-    </label>
-    <label>📈 3장 확률 (%)
-      <input id="prob3" type="number" min="0" max="100" step="0.1" value="19.9">
-    </label>
-    <label>🌟 15장 확률 (%)
-      <input id="prob15" type="number" min="0" max="100" step="0.01" value="0.1">
-    </label>
-    <label>🧩 1대 풀성 청사진 수
-      <input id="needCards" type="number" min="1" value="300">
-    </label>
-    <label>🔁 시뮬레이션 횟수
-      <input id="numSim" type="number" min="100" value="1000">
-    </label>
-    <label>🚗 차량 수
-      <input id="carCount" type="number" min="1" value="6">
-    </label>
-  
-    <label>🧩 차량별 필요 청사진 (쉼표 구분)
-      <input id="needCardsList" type="text" placeholder="예: 300,280,360 (비워두면 위 값 사용)">
-    </label>
-    
-  </div>
-  <div class="row" style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
-    <button class="btn primary" onclick="runFullstarSimulation()">시뮬레이션 실행</button>
-    <small class="hint" style="opacity:.8">10연뽑 마지막 카드 확정: [3장 78.9266%, 15장 21.0734%] 가정</small>
-  </div>
-  <div id="ev-output" class="stat" style="margin-top:10px;font-family:ui-monospace,Menlo,Consolas,monospace;"></div>
-</section>
-
-<script>
-function simulateCardDrawing(cardPackPrice, cardProbabilities, needingCards) {
-  const cards = ["losing card", "3 cards", "15 cards"];
-  const tencardProbabilities = [0.789266, 0.210734]; // 10연 마지막 확정
-  let totalTokensSpent = 0;
-  let totalCardsObtained = 0;
-  let currentDrawnNumber = 0;
-  const tencard = cards.slice(1);
-
-  while (totalCardsObtained < needingCards) {
-    totalTokensSpent += cardPackPrice;
-    const sumProb = cardProbabilities[0] + cardProbabilities[1] + cardProbabilities[2];
-    const r = Math.random() * sumProb;
-    let cum = 0;
-    let drawnCard = cards[0];
-
-    if (currentDrawnNumber === 9) {
-      // 10연 마지막 확정
-      for (let i=0;i<tencard.length;i++) {
-        cum += tencardProbabilities[i];
-        if (r < cum) {
-          currentDrawnNumber = 0;
-          drawnCard = tencard[i];
-          break;
+            // Side lines
+            for(let i=0; i<2; i++) {
+                const curb = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 10000), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+                curb.position.set(i === 0 ? -12 : 12, 0.1, 5000);
+                scene.add(curb);
+            }
         }
-      }
-    } else {
-      // 일반 확률
-      for (let i=0;i<cards.length;i++) {
-        cum += cardProbabilities[i];
-        if (r < cum) {
-          currentDrawnNumber++;
-          drawnCard = cards[i];
-          break;
+
+        function createCar() {
+            car = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.6, 2.8), new THREE.MeshStandardMaterial({ color: 0xff2200, metalness: 0.8 }));
+            body.position.y = 0.5;
+            car.add(body);
+            
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.4, 1.2), new THREE.MeshStandardMaterial({ color: 0x000000 }));
+            cabin.position.set(0, 0.8, 0.2);
+            car.add(cabin);
+
+            scene.add(car);
         }
-      }
-    }
-    if (drawnCard === "3 cards") totalCardsObtained += 3;
-    else if (drawnCard === "15 cards") totalCardsObtained += 15;
-  }
-  return totalTokensSpent;
-}
 
-function calculateStandardDeviation(data) {
-  const mean = data.reduce((a,b)=>a+b,0) / data.length;
-  const variance = data.reduce((a,b)=>a+(b-mean)**2,0) / data.length;
-  return Math.sqrt(variance);
-}
-
-function runSimulations(numSimulations, cardPackPrice, cardProbabilities, needingCards) {
-  const results = new Array(numSimulations);
-  for (let i=0;i<numSimulations;i++) {
-    results[i] = simulateCardDrawing(cardPackPrice, cardProbabilities, needingCards);
-  }
-  const sum = results.reduce((a,b)=>a+b,0);
-  const avg = sum / results.length;
-  const std = calculateStandardDeviation(results);
-  return {avg, std};
-}
-
-
-function runFullstarSimulation() {
-  const price = Math.max(0, parseFloat(document.getElementById("packPrice").value || "75"));
-  const prob3 = Math.max(0, Math.min(100, parseFloat(document.getElementById("prob3").value || "19.9"))) / 100;
-  const prob15 = Math.max(0, Math.min(100, parseFloat(document.getElementById("prob15").value || "0.1"))) / 100;
-  const probLose = Math.max(0, 1 - prob3 - prob15);
-  const defaultNeed = Math.max(1, parseInt(document.getElementById("needCards").value || "300", 10));
-  const numSim = Math.max(100, parseInt(document.getElementById("numSim").value || "1000", 10));
-  const carCountInput = Math.max(1, parseInt(document.getElementById("carCount").value || "6", 10));
-  const needListRaw = (document.getElementById("needCardsList").value || "").trim();
-
-  const cardProbabilities = [probLose, prob3, prob15];
-
-  // Parse list like "300,280,360"
-  let needs = [];
-  if (needListRaw.length > 0) {
-    needs = needListRaw.split(",").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n > 0);
-  }
-  if (needs.length === 0) {
-    // no list provided -> use carCount copies of defaultNeed
-    needs = Array.from({length: carCountInput}, () => defaultNeed);
-  }
-
-  // Run per-car simulations and aggregate
-  const perCar = needs.map((need, idx) => {
-    const res = runSimulations(numSim, price, cardProbabilities, need);
-    return { car: idx+1, need, avg: res.avg, std: res.std };
-  });
-
-  const totalAvg = perCar.reduce((a,v)=>a+v.avg, 0);
-  const carCount = perCar.length;
-
-  // Render output table
-  let rows = perCar.map(v => `#${v.car} (필요 ${v.need}) → 평균 ${v.avg.toFixed(2)} | σ ${v.std.toFixed(2)}`).join("<br>");
-  if (rows.length === 0) rows = "(결과 없음)";
-
-  document.getElementById("ev-output").innerHTML = [
-    `<b>📊 시뮬레이션 결과 (${numSim}회 평균, 차량 ${carCount}대)</b>`,
-    rows,
-    `<hr style="opacity:.3">총 토큰 소모 (평균 합계): <b>${totalAvg.toFixed(2)}</b>`
-  ].join("<br>");
-}
-</script>
-
-
-<script id="ev-sim-script">
-(function(){
-  function rand() { return Math.random(); }
-
-  function simulateOne(cfg){
-    const cars = new Array(cfg.cars).fill(0);
-    let draws = 0;
-    const need = cfg.needPerCar;
-    const dropP = cfg.dropRate;
-    while(true){
-      draws++;
-      if (rand() < dropP){
-        // which car? uniform among those not yet finished (or simply uniform overall to mimic in-game split)
-        let idx = Math.floor(rand()*cfg.cars);
-        // shards amount
-        const shards = (rand() < cfg.jackpotP)? cfg.shardsJP : cfg.shardsNorm;
-        cars[idx] += shards;
-      }
-      // done?
-      let complete = true;
-      for (let i=0;i<cfg.cars;i++){
-        if (cars[i] < need){ complete = false; break; }
-      }
-      if (complete) return draws;
-    }
-  }
-
-  function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
-  function variance(arr, m){ let s=0; for(const x of arr){ const d=x-m; s+=d*d;} return s/(arr.length-1); }
-  function stddev(v){ return Math.sqrt(v); }
-
-  window.runEVSim = function(){
-    const cfg = {
-      cars: Math.max(1, parseInt(document.getElementById('ev_cars').value||'3',10)),
-      dropRate: Math.max(0, Math.min(1, parseFloat(document.getElementById('ev_drop').value||'20')/100)),
-      jackpotP: Math.max(0, Math.min(1, parseFloat(document.getElementById('ev_jackpot').value||'2')/100)),
-      shardsNorm: Math.max(1, parseInt(document.getElementById('ev_shards_norm').value||'3',10)),
-      shardsJP: Math.max(1, parseInt(document.getElementById('ev_shards_jp').value||'15',10)),
-      needPerCar: Math.max(1, parseInt(document.getElementById('ev_need_per_car').value||'60',10)),
-      trials: Math.max(100, parseInt(document.getElementById('ev_trials').value||'5000',10)),
-      costPerDraw: Math.max(0, parseFloat(document.getElementById('ev_cost_per_draw').value||'0'))
-    };
-    const runs = new Array(cfg.trials);
-    // Monte Carlo
-    for (let t=0; t<cfg.trials; t++){
-      runs[t] = simulateOne(cfg);
-    }
-    const m = mean(runs);
-    const v = variance(runs, m);
-    const s = stddev(v);
-    const ciHalf = 1.96 * s / Math.sqrt(cfg.trials);
-    const ci = [m - ciHalf, m + ciHalf];
-
-    // Output
-    const out = (id, val)=>document.getElementById(id).textContent = (typeof val === 'number'? Math.round(val*100)/100 : val);
-    document.getElementById('ev_out').style.display = 'grid';
-    out('ev_mean', m);
-    out('ev_std', s);
-    out('ev_var', v);
-    out('ev_ci', `${(ci[0]).toFixed(2)} ~ ${(ci[1]).toFixed(2)}`);
-
-    if (cfg.costPerDraw > 0){
-      const avgCost = m * cfg.costPerDraw;
-      document.getElementById('ev_cost_wrap').style.display = 'block';
-      out('ev_cost', avgCost);
-    } else {
-      document.getElementById('ev_cost_wrap').style.display = 'none';
-    }
-
-    // Log sample (first 50)
-    const sample = runs.slice(0, Math.min(50, runs.length)).map((v,i)=>`${i+1}: ${v}`).join('\n');
-    document.getElementById('ev_log').textContent = sample;
-  };
-})();
-</script>
-
-
-<!-- v1.4.2 select visibility fix -->
-<style id="select-visibility-fix">
-/* 선택지(드롭다운/옵션) 가시성 고정 */
-select,
-select option,
-.dropdown-menu,
-.listbox,
-.menu {
-  background-color: #111318 !important; /* 고정 어두운 배경 */
-  color: #f5f7fa !important;            /* 고정 밝은 전경 */
-  border: 1px solid rgba(255,255,255,0.15) !important;
-}
-
-/* hover/focus 시 시인성 강화 */
-select:focus,
-select:hover {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* 옵션 hover/선택 가시성 (브라우저별 지원 차이 존재) */
-select option:hover,
-select option:checked {
-  background-color: #1b1e24 !important;
-  color: #ffffff !important;
-}
-</style>
-
-
-<!-- v1.4.3 responsive layout fix -->
-<style id="responsive-layout-fix">
-/* 모바일 전체 폰트 및 카드 여백 조정 */
-@media (max-width: 768px) {
-  body {
-    font-size: 15px;
-    line-height: 1.4;
-  }
-
-  .card {
-    width: 94% !important;
-    margin: 10px auto !important;
-    padding: 10px !important;
-  }
-
-  /* 드롭다운, 버튼 크기 자동 조정 */
-  select, input[type="number"], input[type="text"], button {
-    font-size: 14px !important;
-    padding: 6px 8px !important;
-  }
-
-  /* 프리셋/계산기/히스토리 영역이 한 줄에 하나씩 */
-  .grid, .row, .controls, .history, .preset {
-    display: block !important;
-  }
-
-  /* 버튼 그룹 간격 정리 */
-  .btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 8px;
-  }
-
-  /* 표/리스트 가로 스크롤 허용 */
-  table, .history-list {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* 초소형 화면(아이폰 SE 이하) */
-@media (max-width: 420px) {
-  body { font-size: 14px; }
-  .card { padding: 8px !important; }
-  button, select { font-size: 13px !important; }
-}
-</style>
-
-
-<!-- v1.4.3a responsive numeric layout restore -->
-<style id="responsive-layout-fix-a">
-@media (max-width: 768px) {
-  /* 숫자 입력/팩 수/합계 등이 한 줄로 보이도록 flex 복원 */
-  .controls, .row {
-    display: flex !important;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-  /* 입력 폭이 너무 좁아지지 않도록 최소 폭 확보 */
-  input[type="number"], input[type="text"], select {
-    min-width: 92px;
-  }
-  /* 숫자·단위가 끊기지 않게 */
-  .mono, .stat, .statitem, .qty, .amount {
-    white-space: nowrap;
-  }
-}
-</style>
-
-
-<!-- v1.4.3b mobile overflow fix -->
-<style id="responsive-layout-fix-b">
-@media (max-width: 768px) {
-  body {
-    overflow-x: hidden; /* 가로 스크롤 방지 */
-  }
-
-  .controls, .row {
-    display: flex !important;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    margin: 4px 0;
-  }
-
-  /* 비율 기반 최소폭으로 자동 줄맞춤 (넘침 방지) */
-  input[type="number"], input[type="text"], select {
-    min-width: 22%;
-    max-width: 48%;
-    flex: 1 1 auto;
-  }
-
-  /* 숫자·단위 줄바꿈 방지 */
-  .mono, .stat, .statitem, .qty, .amount {
-    white-space: nowrap;
-  }
-
-  /* 카드 폭은 항상 화면 안에서 */
-  .card {
-    width: calc(100% - 20px) !important;
-    margin: 10px auto !important;
-  }
-}
-</style>
-
-
-<!-- v1.5.2 polished UI system -->
-<style id="polished-ui-v1-5-2">
-/* ===== Design Tokens ===== */
-:root{
-  --radius: 12px;
-  --radius-sm: 10px;
-  --gap: 12px;
-  --gap-sm: 8px;
-  --elev-1: 0 6px 18px rgba(0,0,0,.25);
-  --elev-2: 0 12px 28px rgba(0,0,0,.28);
-  --accent: var(--accent, #7c3aed); /* fallback to purple */
-  --accent-contrast: #ffffff;
-  --muted: rgba(255,255,255,.65);
-  --fg-num: #e8ecf3;
-}
-
-/* Typographic scale */
-h1,h2,h3 { letter-spacing: -0.01em }
-.card h1{ font-size: clamp(1.4rem, 2.2vw, 1.9rem) }
-.card h2{ font-size: clamp(1.2rem, 2.0vw, 1.5rem) }
-.card h3{ font-size: clamp(1.1rem, 1.8vw, 1.25rem) }
-
-/* ===== Cards ===== */
-.card{
-  border-radius: var(--radius);
-  box-shadow: var(--elev-1);
-  border: 1px solid var(--border);
-  background: color-mix(in oklab, var(--card) 86%, black 14%);
-}
-
-/* ===== Consistent Control Rows ===== */
-.controls, .row{
-  display: grid;
-  gap: var(--gap);
-  grid-template-columns: repeat(12, 1fr);
-  align-items: center;
-}
-/* Pack lines look symmetrical: [label] [—] [input] [+] [spacer] [per-pack total] */
-.controls .label, .row .label{ grid-column: span 4; font-weight: 600; opacity:.9 }
-.controls .minus, .row .minus{ grid-column: span 1; }
-.controls .qty,   .row .qty  { grid-column: span 2; }
-.controls .plus,  .row .plus { grid-column: span 1; }
-.controls .spacer,.row .spacer { grid-column: span 1; }
-.controls .total, .row .total{ grid-column: span 3; text-align:right; color: var(--fg-num) }
-
-/* When DOM doesn't have these classes, align common elements by order as a fallback */
-.controls > *:nth-child(1){ }
-.controls > *:nth-child(2){ }
-.controls > *:nth-child(3){ }
-.controls > *:nth-child(4){ }
-.controls > *:nth-child(5){ }
-.controls > *:nth-child(6){ text-align:right }
-
-/* Numbers look crisp */
-input[type="number"]{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 600; color: var(--fg-num) }
-
-/* ===== Button System ===== */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  height: 36px; padding: 0 14px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: color-mix(in oklab, var(--card) 86%, black 14%);
-  color: var(--fg); cursor: pointer; user-select:none;
-  transition: transform .08s ease, box-shadow .08s ease, border-color .12s ease, background .12s ease;
-}
-.btn:hover{ transform: translateY(-1px); box-shadow: var(--elev-1); border-color: color-mix(in oklab, var(--accent) 60%, white 10%); }
-.btn:active{ transform: translateY(0); box-shadow: none; }
-
-/* Role-based buttons */
-.btn.primary{ background: var(--accent); color: var(--accent-contrast); border-color: var(--accent) }
-.btn.secondary{ background: color-mix(in oklab, var(--card) 80%, black 20%); }
-.btn.ghost{ background: transparent; border-color: rgba(255,255,255,.16); color: var(--muted) }
-.btn.danger{ background: #ef4444; border-color:#ef4444; color:#fff }
-
-/* Icon +/- buttons consistent square size */
-.btn.square{ width:38px; height:38px; padding:0; font-weight:700 }
-
-/* Larger CTAs for main actions */
-.btn.cta{ height: 42px; padding: 0 18px; font-weight: 700; }
-
-/* ===== Selects / Inputs ===== */
-select, input[type="number"], input[type="text"]{
-  height: 38px; padding: 0 10px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: color-mix(in oklab, var(--card) 86%, black 14%);
-  color: var(--fg);
-}
-
-/* ===== Result block left-aligned with subtle divider ===== */
-#summary, #ev-output{
-  text-align:left;
-}
-.divider{ height:1px; background: rgba(255,255,255,.12); margin: 8px 0 10px 0; border-radius:999px }
-
-/* ===== Responsive ===== */
-@media (max-width: 1024px){
-  .controls, .row{ grid-template-columns: repeat(8, 1fr) }
-  .controls .label, .row .label{ grid-column: span 4 }
-  .controls .minus, .row .minus{ grid-column: span 1 }
-  .controls .qty, .row .qty{ grid-column: span 2 }
-  .controls .plus, .row .plus{ grid-column: span 1 }
-  .controls .total, .row .total{ grid-column: span 8; text-align:left }
-}
-@media (max-width: 640px){
-  .controls, .row{ grid-template-columns: repeat(6, 1fr) }
-  .controls .label, .row .label{ grid-column: span 6 }
-  .controls .minus, .row .minus{ grid-column: span 1 }
-  .controls .qty, .row .qty{ grid-column: span 3 }
-  .controls .plus, .row .plus{ grid-column: span 1 }
-  .controls .total, .row .total{ grid-column: span 6; text-align:left }
-  .btn{ height: 34px }
-  .btn.square{ width:34px; height:34px }
-}
-</style>
-
-
-<!-- v1.5.2a number align fix -->
-<style id="number-center-fix">
-input[type="number"] {
-  text-align: center;
-  vertical-align: middle;
-  line-height: normal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 38px;
-  padding: 0;
-}
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  margin: 0;
-  appearance: none;
-}
-</style>
-
-
-<!-- v1.5.2a+ button press glow -->
-<style id="button-press-feedback">
-/* Base */
-.btn{ position: relative; overflow: hidden; transition: transform .06s ease, filter .12s ease, box-shadow .12s ease; }
-.btn:active{ transform: translateY(0) scale(0.99); }
-/* Focus ring */
-.btn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px;
-  box-shadow: 0 0 0 6px color-mix(in oklab, var(--accent) 35%, transparent 65%); }
-/* Neon-ish brighten on press */
-.btn.primary:active{ filter: brightness(1.14); box-shadow: 0 10px 28px color-mix(in oklab, var(--accent) 45%, transparent 55%); }
-.btn.secondary:active{ filter: brightness(1.1); }
-/* Ripple/glow */
-.btn::after{
-  content: "";
-  position: absolute; inset: -2px;
-  border-radius: inherit; pointer-events: none; opacity: 0;
-  background: radial-gradient(180px 180px at var(--press-x,50%) var(--press-y,50%),
-    color-mix(in oklab, var(--accent) 60%, white 10%),
-    transparent 60%);
-  transform: scale(0.5);
-}
-.btn._press::after{ animation: press-glow .45s ease-out; }
-@keyframes press-glow{
-  0%{ opacity:.35; transform: scale(0.5); }
-  100%{ opacity:0; transform: scale(1.2); }
-}
-</style>
-
-<script id="button-press-feedback-js">
-(function(){
-  // Attach once
-  const attach = (btn)=>{
-    if(btn._pressBound) return;
-    btn._pressBound = true;
-    btn.addEventListener('pointerdown', (e)=>{
-      const rect = btn.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(2) + '%';
-      const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(2) + '%';
-      btn.style.setProperty('--press-x', x);
-      btn.style.setProperty('--press-y', y);
-      // retrigger animation
-      btn.classList.remove('_press');
-      // Force reflow
-      void btn.offsetWidth;
-      btn.classList.add('_press');
-    });
-  };
-  document.querySelectorAll('.btn').forEach(attach);
-  // Observe future buttons just in case
-  const obs = new MutationObserver(muts=>{
-    muts.forEach(m=>{
-      m.addedNodes && m.addedNodes.forEach(n=>{
-        if(!(n instanceof Element)) return;
-        if(n.classList && n.classList.contains('btn')) attach(n);
-        n.querySelectorAll && n.querySelectorAll('.btn').forEach(attach);
-      });
-    });
-  });
-  obs.observe(document.documentElement, {childList:true, subtree:true});
-})();
-</script>
-
-
-<!-- v1.5.3 neon-themed primary buttons -->
-<style id="neon-themed-buttons">
-/* Fallback (no theme): use --accent if present */
-.btn.primary{
-  background: linear-gradient(145deg, var(--accent, #7c3aed), color-mix(in oklab, var(--accent, #7c3aed) 60%, black 40%));
-  color: #ffffff;
-  text-shadow: 0 0 6px color-mix(in oklab, var(--accent, #7c3aed) 80%, white 20%);
-  box-shadow: 0 0 10px color-mix(in oklab, var(--accent, #7c3aed) 50%, transparent 50%);
-}
-
-/* === Themed neon palettes === */
-/* Onyx (dark cyber blue) */
-body[data-theme="onyx"] .btn.primary{
-  background: linear-gradient(145deg, #00eaff, #0077ff);
-  color: #e9ffff;
-  text-shadow: 0 0 6px #00baff, 0 0 14px #00eaff;
-  box-shadow: 0 0 14px rgba(0,234,255,0.75), 0 0 36px rgba(0,119,255,0.5);
-}
-body[data-theme="onyx"] .btn.primary:hover{ filter: brightness(1.2); box-shadow: 0 0 18px rgba(0,234,255,0.95), 0 0 48px rgba(0,119,255,0.6); }
-body[data-theme="onyx"] .btn.primary:active{ filter: brightness(1.35); text-shadow: 0 0 10px #00eaff, 0 0 20px #00eaff; }
-
-/* Sunset (warm orange neon) */
-body[data-theme="sunset"] .btn.primary{
-  background: linear-gradient(145deg, #ff7849, #ffb199);
-  color: #fff7f0;
-  text-shadow: 0 0 6px #ffb199, 0 0 14px #ff7849;
-  box-shadow: 0 0 14px rgba(255,120,73,0.78), 0 0 36px rgba(255,177,153,0.5);
-}
-body[data-theme="sunset"] .btn.primary:hover{ filter: brightness(1.18); box-shadow: 0 0 18px rgba(255,120,73,0.95), 0 0 48px rgba(255,177,153,0.6); }
-body[data-theme="sunset"] .btn.primary:active{ filter: brightness(1.32); text-shadow: 0 0 10px #ffb199, 0 0 20px #ff7849; }
-
-/* Neon Night (magenta/pink neon) */
-body[data-theme="neon-night"] .btn.primary{
-  background: linear-gradient(145deg, #ff00ff, #ff66ff);
-  color: #fff0ff;
-  text-shadow: 0 0 8px #ff66ff, 0 0 18px #ff00ff;
-  box-shadow: 0 0 18px rgba(255,0,255,0.85), 0 0 40px rgba(255,102,255,0.6);
-}
-body[data-theme="neon-night"] .btn.primary:hover{ filter: brightness(1.18); box-shadow: 0 0 22px rgba(255,0,255,1), 0 0 52px rgba(255,102,255,0.75); }
-body[data-theme="neon-night"] .btn.primary:active{ filter: brightness(1.33); text-shadow: 0 0 12px #ff66ff, 0 0 24px #ff00ff; }
-
-/* Aurora (mint/cyan neon) */
-body[data-theme="aurora"] .btn.primary{
-  background: linear-gradient(145deg, #00ffc3, #00b3ff);
-  color: #eafffb;
-  text-shadow: 0 0 8px #99fff2, 0 0 18px #00ffc3;
-  box-shadow: 0 0 16px rgba(0,255,195,0.8), 0 0 38px rgba(0,179,255,0.55);
-}
-body[data-theme="aurora"] .btn.primary:hover{ filter: brightness(1.18); box-shadow: 0 0 20px rgba(0,255,195,1), 0 0 50px rgba(0,179,255,0.7); }
-body[data-theme="aurora"] .btn.primary:active{ filter: brightness(1.32); text-shadow: 0 0 12px #99fff2, 0 0 24px #00ffc3; }
-
-/* Forest (neon green) */
-body[data-theme="forest"] .btn.primary{
-  background: linear-gradient(145deg, #3dfc7e, #00c853);
-  color: #edfff3;
-  text-shadow: 0 0 6px #88ffb3, 0 0 14px #3dfc7e;
-  box-shadow: 0 0 14px rgba(61,252,126,0.8), 0 0 36px rgba(0,200,83,0.5);
-}
-body[data-theme="forest"] .btn.primary:hover{ filter: brightness(1.18); box-shadow: 0 0 18px rgba(61,252,126,1), 0 0 48px rgba(0,200,83,0.65); }
-body[data-theme="forest"] .btn.primary:active{ filter: brightness(1.3); text-shadow: 0 0 10px #88ffb3, 0 0 22px #3dfc7e; }
-
-/* Chroma Glow (purple plasma) */
-body[data-theme="chroma"] .btn.primary{
-  background: linear-gradient(145deg, #7c3aed, #a78bfa);
-  color: #f6f1ff;
-  text-shadow: 0 0 8px #b794f6, 0 0 18px #7c3aed;
-  box-shadow: 0 0 16px rgba(124,58,237,0.8), 0 0 40px rgba(167,139,250,0.55);
-}
-body[data-theme="chroma"] .btn.primary:hover{ filter: brightness(1.18); box-shadow: 0 0 20px rgba(124,58,237,1), 0 0 52px rgba(167,139,250,0.7); }
-body[data-theme="chroma"] .btn.primary:active{ filter: brightness(1.32); text-shadow: 0 0 12px #b794f6, 0 0 24px #7c3aed; }
-
-/* Light theme (cool blue) */
-body[data-theme="light"] .btn.primary{
-  background: linear-gradient(145deg, #0077ff, #66bfff);
-  color: #f7fbff;
-  text-shadow: 0 0 6px #66bfff, 0 0 14px #0077ff;
-  box-shadow: 0 0 14px rgba(0,119,255,0.65), 0 0 36px rgba(102,191,255,0.45);
-}
-body[data-theme="light"] .btn.primary:hover{ filter: brightness(1.15); box-shadow: 0 0 18px rgba(0,119,255,0.9), 0 0 48px rgba(102,191,255,0.6); }
-body[data-theme="light"] .btn.primary:active{ filter: brightness(1.28); text-shadow: 0 0 10px #66bfff, 0 0 22px #0077ff; }
-</style>
-
-
-<!-- v1.5.3a label clamp + number font -->
-<style id="label-and-number-typography">
-/* Make numeric inputs more legible */
-input[type="number"]{
-  font-family: "Inter", "Noto Sans KR", ui-monospace, Menlo, Consolas, monospace;
-  font-weight: 700;
-  font-size: 1.25rem; /* bigger digits */
-  letter-spacing: .3px;
-  text-align: center;
-  color: #fff;
-}
-
-/* Label: prevent awkward wrapping without overflow by splitting unit */
-.label{
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;        /* keep single line */
-  min-width: 0;
-  max-width: 14ch;            /* clamp width */
-  overflow: hidden;
-  text-overflow: ellipsis;    /* if too long, ellipsis */
-}
-
-/* After we split into main/unit spans */
-.label .label-main{ flex: 0 1 auto; min-width: 0; }
-.label .label-unit{ flex: 0 0 auto; font-size: .85em; opacity: .75; }
-
-/* Responsive: on very narrow screens, hide the unit to keep one line */
-@media (max-width: 640px){
-  .label{ max-width: 11ch; }
-  .label .label-unit{ display:none; }
-}
-
-/* Slightly compact the pack control cluster so the line height stays tight */
-.btn.square{ min-width: 36px; height: 36px; }
-</style>
-
-<!-- v1.5.3a: runtime label splitter (e.g., "팩 29 ARS" -> "팩 29" + "ARS") -->
-<script id="label-runtime-splitter">
-(function(){
-  const sel = document.querySelectorAll('.label');
-  sel.forEach(el => {
-    if (el.querySelector('.label-main')) return; // already processed
-    const txt = (el.textContent || '').trim();
-    // Try to split by the last space to extract unit like 'ARS'
-    const idx = txt.lastIndexOf(' ');
-    if (idx > 0){
-      const main = txt.slice(0, idx).trim();
-      const unit = txt.slice(idx+1).trim();
-      // Build structure
-      el.setAttribute('title', txt); // tooltip for full text
-      el.textContent = '';
-      const s1 = document.createElement('span'); s1.className = 'label-main'; s1.textContent = main;
-      const s2 = document.createElement('span'); s2.className = 'label-unit'; s2.textContent = unit;
-      el.appendChild(s1); el.appendChild(s2);
-    }
-  });
-})();
-</script>
-
-
-<!-- v1.5.3b mobile readability boost -->
-<style id="mobile-readability-boost">
-/* General touch friendliness */
-@media (max-width: 640px){
-  html, body { font-size: 16px; -webkit-text-size-adjust: 100%; }
-  body { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  .card { padding: 12px !important; }
-
-  /* Pack control row spacing */
-  .row, .controls { gap: 8px !important; }
-
-  /* Labels: slightly bigger and stronger; unit hidden already in 640 rule */
-  .label { font-size: 0.98rem; font-weight: 700; max-width: 13ch; }
-
-  /* Number inputs: bigger digits & targets */
-  input[type="number"]{
-    height: 44px !important;
-    width: 86px !important;
-    font-size: 1.35rem !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.2px;
-  }
-
-  /* Plus/Minus buttons: Apple HIG min 44px */
-  .btn.square{
-    width: 44px !important;
-    height: 44px !important;
-    font-size: 1.05rem !important;
-  }
-
-  /* Primary buttons (e.g., 계산하기): larger & full-width option on small screens */
-  .btn.primary{
-    height: 48px;
-    padding: 0 20px;
-    font-size: 1rem;
-  }
-  /* If inside a row of actions, allow wrapping to full width when narrow */
-  .actions, .action-row { display:flex; flex-wrap:wrap; gap:8px }
-  .actions .btn.primary, .action-row .btn.primary { flex: 1 1 100%; }
-  
-  /* Result blocks: line-height a bit larger for readability */
-  #ev-output, #summary { line-height: 1.6; font-size: 1rem; }
-}
-
-/* Very small devices */
-@media (max-width: 380px){
-  .label { max-width: 10ch; }
-  input[type="number"]{ width: 78px !important; font-size: 1.28rem !important; }
-  .btn.square{ width: 42px !important; height: 42px !important; }
-}
-
-/* Improve contrast slightly for digits on dark backgrounds */
-input[type="number"]{
-  color: #fff;
-  text-shadow: 0 0 1px rgba(0,0,0,0.15);
-}
-</style>
-
-
-<!-- v1.5.4 neon colors per theme -->
-<style id="v154-themed-neon">
-/* Default */
-.btn.primary{
-  transition: all 0.25s ease-in-out;
-  text-shadow: 0 0 6px var(--accent, #7c3aed);
-  box-shadow: 0 0 12px color-mix(in oklab, var(--accent, #7c3aed) 70%, transparent 30%);
-}
-
-/* Onyx */
-body[data-theme="onyx"] .btn.primary{
-  background: linear-gradient(145deg, #00eaff, #0077ff);
-  color: #e9ffff;
-  text-shadow: 0 0 8px #00eaff, 0 0 20px #0077ff;
-  box-shadow: 0 0 16px rgba(0,234,255,0.8), 0 0 40px rgba(0,119,255,0.5);
-}
-
-/* Sunset */
-body[data-theme="sunset"] .btn.primary{
-  background: linear-gradient(145deg, #ff7849, #ffb199);
-  color: #fff5ee;
-  text-shadow: 0 0 8px #ffb199, 0 0 20px #ff7849;
-  box-shadow: 0 0 16px rgba(255,120,73,0.85), 0 0 38px rgba(255,177,153,0.55);
-}
-
-/* Neon Night */
-body[data-theme="neon-night"] .btn.primary{
-  background: linear-gradient(145deg, #ff00ff, #ff66ff);
-  color: #fff0ff;
-  text-shadow: 0 0 10px #ff66ff, 0 0 22px #ff00ff;
-  box-shadow: 0 0 20px rgba(255,0,255,0.9), 0 0 45px rgba(255,102,255,0.6);
-}
-
-/* Aurora */
-body[data-theme="aurora"] .btn.primary{
-  background: linear-gradient(145deg, #00ffc3, #00b3ff);
-  color: #eafffb;
-  text-shadow: 0 0 10px #00ffc3, 0 0 22px #00b3ff;
-  box-shadow: 0 0 18px rgba(0,255,195,0.85), 0 0 42px rgba(0,179,255,0.6);
-}
-
-/* Forest */
-body[data-theme="forest"] .btn.primary{
-  background: linear-gradient(145deg, #3dfc7e, #00c853);
-  color: #edfff3;
-  text-shadow: 0 0 8px #3dfc7e, 0 0 20px #00c853;
-  box-shadow: 0 0 16px rgba(61,252,126,0.85), 0 0 40px rgba(0,200,83,0.55);
-}
-
-/* Chroma Glow */
-body[data-theme="chroma"] .btn.primary{
-  background: linear-gradient(145deg, #7c3aed, #a78bfa);
-  color: #f6f1ff;
-  text-shadow: 0 0 10px #a78bfa, 0 0 24px #7c3aed;
-  box-shadow: 0 0 20px rgba(124,58,237,0.9), 0 0 44px rgba(167,139,250,0.6);
-}
-
-/* Light */
-body[data-theme="light"] .btn.primary{
-  background: linear-gradient(145deg, #0077ff, #66bfff);
-  color: #f7fbff;
-  text-shadow: 0 0 8px #66bfff, 0 0 20px #0077ff;
-  box-shadow: 0 0 16px rgba(0,119,255,0.75), 0 0 40px rgba(102,191,255,0.5);
-}
-</style>
-
-
-<!-- injected: v3 limited autoshrink (minScale=0.9, fallback to local scroll) -->
-<style id="limited-autoshrink-style">
-/* Local scroll fallback container */
-.local-hscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative;width:100%;}
-.local-hscroll::-webkit-scrollbar{height:8px}
-.local-hscroll > .local-hscroll-inner{display:inline-block;min-width:100%}
-/* Media should not exceed container by default */
-img,video,canvas,svg,iframe,embed,object{max-width:100%;height:auto}
-</style>
-<script id="limited-autoshrink-script">
-(function(){
-  const MIN_SCALE = 0.9; // don't scale smaller than this
-  const EXCLUDE = new Set(['PRE','CODE','KBD','SAMP','TEXTAREA']);
-  const WRAP_CLASS = 'autoshrink-wrap';
-  const TARGET_CLASS = 'autoshrink-target';
-
-  function isExcluded(el){
-    if (EXCLUDE.has(el.tagName)) return true;
-    if (el.closest('.hscroll,.table-wrap,.local-hscroll')) return true;
-    if (el.closest('pre,code,kbd,samp,textarea')) return true;
-    return false;
-  }
-
-  function ensureShrinkWrap(el){
-    if (el.classList.contains(TARGET_CLASS) && el.parentElement?.classList.contains(WRAP_CLASS)) {
-      return el.parentElement;
-    }
-    const wrap = document.createElement('div');
-    wrap.className = WRAP_CLASS;
-    el.classList.add(TARGET_CLASS);
-    el.parentNode.insertBefore(wrap, el);
-    wrap.appendChild(el);
-    return wrap;
-  }
-
-  function makeLocalScroll(el){
-    // unwrap if previously shrink-wrapped
-    if (el.classList.contains(TARGET_CLASS) && el.parentElement?.classList.contains(WRAP_CLASS)){
-      const wrap = el.parentElement;
-      wrap.parentNode.insertBefore(el, wrap);
-      wrap.remove();
-      el.classList.remove(TARGET_CLASS);
-      el.style.transform = 'none';
-    }
-    // already in local-hscroll?
-    if (el.parentElement && el.parentElement.classList.contains('local-hscroll')) return;
-    const outer = document.createElement('div');
-    outer.className = 'local-hscroll';
-    const inner = document.createElement('div');
-    inner.className = 'local-hscroll-inner';
-    el.parentNode.insertBefore(outer, el);
-    outer.appendChild(inner);
-    inner.appendChild(el);
-  }
-
-  function resetScale(el){
-    el.style.transform = 'none';
-    if (el.parentElement?.classList.contains(WRAP_CLASS)){
-      el.parentElement.style.height = '';
-    }
-  }
-
-  function fitElement(el){
-    const vw = document.documentElement.clientWidth;
-    resetScale(el);
-    const sw = el.scrollWidth;
-    if (sw <= vw + 1) return; // fine
-
-    const scale = vw / sw;
-    if (scale >= MIN_SCALE) {
-      // do controlled shrink
-      const wrap = ensureShrinkWrap(el);
-      el.style.transform = 'scale(' + scale + ')';
-      const rect = el.getBoundingClientRect();
-      wrap.style.height = rect.height + 'px';
-    } else {
-      // below readable threshold -> local horizontal scroll
-      makeLocalScroll(el);
-    }
-  }
-
-  function collectOffenders(){
-    const vw = document.documentElement.clientWidth;
-    const all = Array.from(document.body.querySelectorAll('*'));
-    return all.filter(el=>{
-      if (!(el instanceof HTMLElement)) return false;
-      if (isExcluded(el)) return false;
-      if (el.offsetParent === null) return false;
-      if (el.tagName === 'HTML' || el.tagName === 'BODY') return false;
-      if (el.clientWidth === 0 && el.clientHeight === 0) return false;
-      try { return el.scrollWidth > vw + 1; } catch(e){ return false; }
-    });
-  }
-
-  function apply(){
-    collectOffenders().forEach(fitElement);
-  }
-
-  let rafId=null;
-  function schedule(){ if(rafId) cancelAnimationFrame(rafId); rafId=requestAnimationFrame(apply); }
-
-  window.addEventListener('load', schedule, {passive:true});
-  window.addEventListener('resize', schedule, {passive:true});
-  const ro = new ResizeObserver(()=>schedule()); ro.observe(document.documentElement);
-  const mo = new MutationObserver(()=>schedule());
-  mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['style','class']});
-})();
-</script>
-
+        function createRamps() {
+            for (let i = 1; i <= 20; i++) {
+                const isBarrel = i % 3 === 0;
+                const z = i * 350;
+                const x = (Math.random() - 0.5) * 12;
+                
+                const rGeo = new THREE.BoxGeometry(6, 0.5, 10);
+                const rMat = new THREE.MeshStandardMaterial({ color: isBarrel ? 0xbf00ff : 0xffcc00 });
+                const ramp = new THREE.Mesh(rGeo, rMat);
+                
+                ramp.rotation.x = -0.25;
+                if (isBarrel) {
+                    ramp.rotation.z = (x > 0) ? -0.4 : 0.4; // Tilted for barrel roll
+                }
+                
+                ramp.position.set(x, 0.8, z);
+                scene.add(ramp);
+                ramps.push({ mesh: ramp, x, z, type: isBarrel ? RAMP_TYPE.BARREL : RAMP_TYPE.NORMAL });
+            }
+        }
+
+        function start360Spin() {
+            isSpinning = true;
+            spinAngle = 0;
+            nitroAmount = Math.min(100, nitroAmount + 15);
+            showMessage("360 SPIN!");
+        }
+
+        function activateNitro() {
+            isNitroActive = true;
+            if (nitroAmount >= 98) {
+                isShockwave = true;
+                showMessage("SHOCKWAVE!!!");
+                document.getElementById('nitro-bar').classList.add('shockwave');
+            } else {
+                showMessage("NITRO BOOST");
+            }
+        }
+
+        function showMessage(txt) {
+            const msg = document.getElementById('message-box');
+            msg.innerText = txt;
+            msg.style.opacity = 1;
+            msg.style.transform = 'translateX(-50%) scale(1.3)';
+            setTimeout(() => {
+                msg.style.opacity = 0;
+                msg.style.transform = 'translateX(-50%) scale(1)';
+            }, 1000);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = clock.getDelta();
+
+            // Physics
+            if (keys['ArrowUp'] || keys['KeyW']) speed += acceleration;
+            else speed *= friction;
+
+            // Nitro
+            if (isNitroActive) {
+                nitroAmount -= isShockwave ? 0.7 : 0.35;
+                speed += isShockwave ? 0.025 : 0.012;
+                if (nitroAmount <= 0) {
+                    isNitroActive = false; isShockwave = false;
+                    document.getElementById('nitro-bar').classList.remove('shockwave');
+                }
+            } else if (speed > 0.1) {
+                nitroAmount = Math.min(100, nitroAmount + 0.05);
+            }
+
+            speed = Math.min(speed, isShockwave ? maxSpeed * 1.6 : maxSpeed);
+            car.position.z += speed;
+
+            // Steering
+            if (speed > 0.1 && !isSpinning) {
+                if (keys['ArrowLeft'] || keys['KeyA']) car.position.x += 0.2;
+                if (keys['ArrowRight'] || keys['KeyD']) car.position.x -= 0.2;
+            }
+            car.position.x = THREE.MathUtils.clamp(car.position.x, -11, 11);
+
+            // Vertical & Jump
+            car.position.y += velocityY;
+            if (car.position.y > 0) {
+                velocityY += gravity;
+                nitroAmount += 0.1;
+            } else {
+                car.position.y = 0; velocityY = 0;
+                if (isBarrelRolling) {
+                    isBarrelRolling = false;
+                    car.rotation.z = 0;
+                }
+            }
+
+            // Ramp Collision
+            ramps.forEach(ramp => {
+                const dz = Math.abs(car.position.z - ramp.z);
+                const dx = Math.abs(car.position.x - ramp.x);
+                if (dz < 5 && dx < 3 && car.position.y < 1.5 && velocityY <= 0) {
+                    velocityY = 0.25 + (speed * 0.12);
+                    if (ramp.type === RAMP_TYPE.BARREL && !isBarrelRolling) {
+                        isBarrelRolling = true;
+                        barrelRollAngle = 0;
+                        nitroAmount = Math.min(100, nitroAmount + 25);
+                        showMessage("BARREL ROLL!!");
+                    } else if (ramp.type === RAMP_TYPE.NORMAL) {
+                        showMessage("JUMP!");
+                    }
+                }
+            });
+
+            // Rotations
+            if (isSpinning) {
+                spinAngle += 0.3;
+                car.rotation.y += 0.3;
+                if (spinAngle >= Math.PI * 2) {
+                    isSpinning = false;
+                    car.rotation.y = 0;
+                }
+            } else {
+                // Lean into turns
+                const lean = (keys['ArrowLeft'] || keys['KeyA']) ? 0.2 : (keys['ArrowRight'] || keys['KeyD'] ? -0.2 : 0);
+                car.rotation.y = THREE.MathUtils.lerp(car.rotation.y, lean, 0.1);
+            }
+
+            if (isBarrelRolling) {
+                barrelRollAngle += 0.15;
+                car.rotation.z += 0.15;
+                // Auto-straighten if nearly finished and close to ground
+                if (barrelRollAngle > Math.PI * 2 && car.position.y < 1) {
+                    isBarrelRolling = false;
+                    car.rotation.z = 0;
+                }
+            }
+
+            // Camera
+            const camTarget = new THREE.Vector3(car.position.x * 0.5, car.position.y + 3, car.position.z - 8 - (speed * 2));
+            camera.position.lerp(camTarget, 0.1);
+            camera.lookAt(car.position.x, car.position.y + 1, car.position.z + 20);
+
+            // UI
+            document.getElementById('speed-value').innerText = Math.floor(speed * 340);
+            document.getElementById('nitro-bar').style.width = nitroAmount + '%';
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
 </body>
 </html>
